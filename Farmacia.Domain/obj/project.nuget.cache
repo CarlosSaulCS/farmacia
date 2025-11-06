@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "76XVetST+p8=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\carlo\\OneDrive\\Documentos\\farmacia\\Farmacia.Domain\\Farmacia.Domain.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\carlo\\.nuget\\packages\\fluentvalidation\\12.1.0\\fluentvalidation.12.1.0.nupkg.sha512"
+  ],
+  "logs": []
+}

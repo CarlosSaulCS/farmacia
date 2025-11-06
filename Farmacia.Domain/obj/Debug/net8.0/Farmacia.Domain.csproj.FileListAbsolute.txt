@@ -1,0 +1,12 @@
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\bin\Debug\net8.0\Farmacia.Domain.deps.json
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\bin\Debug\net8.0\Farmacia.Domain.dll
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\bin\Debug\net8.0\Farmacia.Domain.pdb
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\Farmacia.Domain.csproj.AssemblyReference.cache
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\Farmacia.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\Farmacia.Domain.AssemblyInfoInputs.cache
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\Farmacia.Domain.AssemblyInfo.cs
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\Farmacia.Domain.csproj.CoreCompileInputs.cache
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\Farmacia.Domain.dll
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\refint\Farmacia.Domain.dll
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\Farmacia.Domain.pdb
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Domain\obj\Debug\net8.0\ref\Farmacia.Domain.dll

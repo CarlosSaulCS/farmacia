@@ -1,0 +1,925 @@
+<UserControl x:Class="Farmacia.UI.Wpf.Views.AppointmentsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:Farmacia.UI.Wpf.Models"
+             mc:Ignorable="d"
+             Loaded="UserControl_OnLoaded">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="ConsultAccentBrush" Color="#6366F1" />
+        <SolidColorBrush x:Key="ConsultAccentAltBrush" Color="#4338CA" />
+
+        <LinearGradientBrush x:Key="ConsultHeroBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#F3F4FF" Offset="0" />
+            <GradientStop Color="#FFFFFF" Offset="1" />
+        </LinearGradientBrush>
+
+        <Style x:Key="ConsultLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionStyle}">
+            <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,14,0,4" />
+        </Style>
+
+        <Style x:Key="ConsultTextBoxStyle" TargetType="TextBox">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Margin" Value="0,6,0,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ScrollViewer x:Name="PART_ContentHost" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ConsultComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="Margin" Value="0,6,0,0" />
+            <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style x:Key="ConsultCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0,10,0,0" />
+        </Style>
+
+        <Style x:Key="ConsultBadgeStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Background" Value="#E0E7FF" />
+            <Setter Property="BorderBrush" Value="{StaticResource ConsultAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Margin" Value="0,0,12,12" />
+        </Style>
+
+        <Style x:Key="ConsultMetricCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="Padding" Value="24" />
+            <Setter Property="CornerRadius" Value="22" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#1A1C33" BlurRadius="22" ShadowDepth="8" Opacity="0.08" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ConsultMetricLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="#4B5563" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="ConsultMetricValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="30" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
+            <Setter Property="Margin" Value="0,10,0,4" />
+        </Style>
+
+        <Style x:Key="ConsultDataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#1F2937" />
+            <Setter Property="Background" Value="#F8FAFF" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+        </Style>
+
+        <Style x:Key="ConsultDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Height" Value="54" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="6,0" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EEF2FF" />
+                    <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ConsultStatusPillStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="Transparent">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="24,16,24,40">
+                <Border Background="{StaticResource ConsultHeroBrush}"
+                        CornerRadius="28"
+                        Padding="32"
+                        Margin="0,0,0,28">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#1A1C33" BlurRadius="26" ShadowDepth="10" Opacity="0.08" />
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Consultorio"
+                                       FontSize="28"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="Coordina citas, confirma asistencias y mantén tus notas clínicas organizadas."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,12,0,20"
+                                       TextWrapping="Wrap" />
+                            <WrapPanel Margin="0,0,0,20">
+                                <Border Style="{StaticResource ConsultBadgeStyle}">
+                                    <TextBlock Text="{Binding SelectedDate, Converter={StaticResource DateOnlyConverter}, StringFormat='Agenda {0:dd MMM yyyy}', TargetNullValue='Agenda general'}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource ConsultAccentAltBrush}" />
+                                </Border>
+                                <Border Style="{StaticResource ConsultBadgeStyle}"
+                                        Background="#EEF2FF"
+                                        BorderBrush="Transparent"
+                                        Margin="12,0,0,12">
+                                    <TextBlock Text="{Binding PendingAppointments, StringFormat='Pendientes {0}'}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource ConsultAccentBrush}" />
+                                </Border>
+                            </WrapPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Actualizar agenda"
+                                        Command="{Binding LoadCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Height="42"
+                                        MinWidth="160" />
+                                <Button Content="Buscar"
+                                        Command="{Binding SearchCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Height="42"
+                                        Margin="12,0,0,0"
+                                        MinWidth="140" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="1"
+                                Background="#FFFFFF"
+                                CornerRadius="24"
+                                Padding="24"
+                                Margin="24,0,0,0">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#1A1C33" BlurRadius="20" ShadowDepth="8" Opacity="0.06" />
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Ritmo de hoy"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource NeutralDarkBrush}" />
+                                <Separator Margin="0,10,0,18" />
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <Ellipse Width="10" Height="10" Fill="{StaticResource ConsultAccentBrush}" VerticalAlignment="Center" />
+                                    <TextBlock Text="Total citas" Margin="8,0,0,0" Foreground="#6B7280" />
+                                    <TextBlock Text="{Binding TotalAppointments}"
+                                               FontWeight="SemiBold"
+                                               Margin="16,0,0,0"
+                                               Foreground="{StaticResource NeutralDarkBrush}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <Ellipse Width="10" Height="10" Fill="{StaticResource SuccessBrush}" VerticalAlignment="Center" />
+                                    <TextBlock Text="Completadas" Margin="8,0,0,0" Foreground="#6B7280" />
+                                    <TextBlock Text="{Binding CompletedAppointments}"
+                                               FontWeight="SemiBold"
+                                               Margin="16,0,0,0"
+                                               Foreground="{StaticResource SuccessBrush}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="10" Height="10" Fill="{StaticResource DangerBrush}" VerticalAlignment="Center" />
+                                    <TextBlock Text="Canceladas / No asistieron" Margin="8,0,0,0" Foreground="#6B7280" />
+                                    <TextBlock Text="{Binding CancelledAppointments, StringFormat='C {0}'}"
+                                               FontWeight="SemiBold"
+                                               Margin="16,0,0,0"
+                                               Foreground="{StaticResource DangerBrush}" />
+                                    <TextBlock Text="{Binding NoShowAppointments, StringFormat='  · NA {0}'}"
+                                               FontWeight="SemiBold"
+                                               Margin="6,0,0,0"
+                                               Foreground="{StaticResource DangerBrush}" />
+                                </StackPanel>
+                                <ProgressBar Margin="0,20,0,0"
+                                             Height="6"
+                                             Minimum="0"
+                                             Maximum="1"
+                                             IsIndeterminate="True"
+                                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource ConsultMetricCardStyle}"
+                            Margin="0,0,16,0">
+                        <StackPanel>
+                            <TextBlock Text="Citas del día" Style="{StaticResource ConsultMetricLabelStyle}" />
+                            <TextBlock Text="{Binding TotalAppointments}" Style="{StaticResource ConsultMetricValueStyle}" />
+                            <TextBlock Text="Agenda confirmada" Style="{StaticResource CaptionStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource ConsultMetricCardStyle}"
+                            Background="#F5F3FF"
+                            Margin="0,0,16,0">
+                        <StackPanel>
+                            <TextBlock Text="Pendientes" Style="{StaticResource ConsultMetricLabelStyle}" Foreground="{StaticResource ConsultAccentBrush}" />
+                            <TextBlock Text="{Binding PendingAppointments}"
+                                       Style="{StaticResource ConsultMetricValueStyle}"
+                                       Foreground="{StaticResource ConsultAccentBrush}" />
+                            <TextBlock Text="Confirma asistencia" Style="{StaticResource CaptionStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2"
+                            Style="{StaticResource ConsultMetricCardStyle}"
+                            Background="#ECFDF5"
+                            Margin="0,0,16,0">
+                        <StackPanel>
+                            <TextBlock Text="Completadas" Style="{StaticResource ConsultMetricLabelStyle}" Foreground="{StaticResource SuccessBrush}" />
+                            <TextBlock Text="{Binding CompletedAppointments}"
+                                       Style="{StaticResource ConsultMetricValueStyle}"
+                                       Foreground="{StaticResource SuccessBrush}" />
+                            <TextBlock Text="Consultas finalizadas" Style="{StaticResource CaptionStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="3"
+                            Style="{StaticResource ConsultMetricCardStyle}"
+                            Background="#FFF1F2">
+                        <StackPanel>
+                            <TextBlock Text="Canceladas / No asistieron" Style="{StaticResource ConsultMetricLabelStyle}" Foreground="{StaticResource DangerBrush}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,4" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CancelledAppointments}"
+                                           Style="{StaticResource ConsultMetricValueStyle}"
+                                           Foreground="{StaticResource DangerBrush}" />
+                                <TextBlock Text="{Binding NoShowAppointments, StringFormat=' / {0}'}"
+                                           FontWeight="Bold"
+                                           Margin="6,10,0,0"
+                                           Foreground="{StaticResource DangerBrush}" />
+                            </StackPanel>
+                            <TextBlock Text="Da seguimiento" Style="{StaticResource CaptionStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid Margin="0,0,0,28">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.6*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Background="#FFFFFF"
+                            CornerRadius="26"
+                            Padding="28"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1"
+                            Margin="0,0,20,0">
+                        <StackPanel>
+                            <TextBlock Text="Búsqueda y filtros"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}"
+                                       Margin="0,0,0,6" />
+                            <TextBlock Text="Refina la agenda por fecha, paciente o estado."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,0,0,18" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.2*" />
+                                    <ColumnDefinition Width="1.2*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Fecha" Style="{StaticResource ConsultLabelStyle}" Margin="0,0,0,4" />
+                                    <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay, Converter={StaticResource DateOnlyConverter}}"
+                                                Margin="0,6,0,0"
+                                                Padding="10,6" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="24,0,0,0">
+                                    <TextBlock Text="Paciente o doctor" Style="{StaticResource ConsultLabelStyle}" Margin="0,0,0,4" />
+                                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ConsultTextBoxStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Margin="24,0,0,0">
+                                    <TextBlock Text="Estados" Style="{StaticResource ConsultLabelStyle}" Margin="0,0,0,4" />
+                                    <CheckBox Content="Sólo pendientes"
+                                              IsChecked="{Binding ShowOnlyPending}"
+                                              Style="{StaticResource ConsultCheckBoxStyle}" />
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
+                                <Button Content="Buscar"
+                                        Command="{Binding SearchCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Height="40"
+                                        MinWidth="140" />
+                                <Button Content="Mostrar todo"
+                                        Command="{Binding LoadCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Height="40"
+                                        Margin="12,0,0,0"
+                                        MinWidth="150" />
+                                <ProgressBar Width="120"
+                                             Height="6"
+                                             Margin="20,0,0,0"
+                                             Minimum="0"
+                                             Maximum="1"
+                                             IsIndeterminate="True"
+                                             VerticalAlignment="Center"
+                                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Background="#FFFFFF"
+                            CornerRadius="26"
+                            Padding="28"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="Resumen rápido"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}"
+                                       Margin="0,0,0,6" />
+                            <TextBlock Text="Observa tendencias del día para anticipar la carga de consulta."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,0,0,18" />
+                            <StackPanel Margin="0,0,0,14">
+                                <TextBlock Text="Siguientes citas" Style="{StaticResource ConsultLabelStyle}" Margin="0,0,0,4" />
+                                <TextBlock Text="{Binding PendingAppointments, StringFormat='Tienes {0} citas por confirmar'}"
+                                           Foreground="#4B5563"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <Border Background="#EEF2FF" CornerRadius="18" Padding="16" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="Pendientes confirmación" Style="{StaticResource CaptionStyle}" />
+                                    <TextBlock Text="{Binding PendingAppointments}"
+                                               FontSize="24"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource ConsultAccentBrush}"
+                                               Margin="0,6,0,0" />
+                                    <TextBlock Text="Contacta a los pacientes antes de la hora de cita."
+                                               Style="{StaticResource CaptionStyle}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#FFF7ED" CornerRadius="18" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="Notas rápidas" Style="{StaticResource CaptionStyle}" />
+                                    <TextBlock Text="Anota recomendaciones u observaciones importantes para el equipo."
+                                               Style="{StaticResource CaptionStyle}"
+                                               Foreground="#6B7280"
+                                               Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Background="#FFFFFF"
+                        CornerRadius="26"
+                        Padding="28"
+                        BorderBrush="{StaticResource SeparatorBrush}"
+                        BorderThickness="1"
+                        Margin="0,0,0,28">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.7*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Agendar nueva cita"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="Selecciona paciente, doctor y horario para registrar la consulta en agenda."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,6,0,18"
+                                       TextWrapping="Wrap" />
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                                    <TextBlock Text="Paciente" Style="{StaticResource ConsultLabelStyle}" />
+                                    <ComboBox ItemsSource="{Binding PatientOptions}"
+                                              SelectedItem="{Binding SelectedPatientOption, Mode=TwoWay}"
+                                              Style="{StaticResource ConsultComboBoxStyle}"
+                                              DisplayMemberPath="Name"
+                                              IsTextSearchEnabled="True" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12,0,0">
+                                    <TextBlock Text="Doctor" Style="{StaticResource ConsultLabelStyle}" />
+                                    <ComboBox ItemsSource="{Binding DoctorOptions}"
+                                              SelectedItem="{Binding SelectedDoctorOption, Mode=TwoWay}"
+                                              Style="{StaticResource ConsultComboBoxStyle}"
+                                              DisplayMemberPath="Name" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,12,18,0">
+                                    <TextBlock Text="Fecha" Style="{StaticResource ConsultLabelStyle}" />
+                                    <DatePicker SelectedDate="{Binding NewAppointmentDate, Mode=TwoWay, Converter={StaticResource DateOnlyConverter}}"
+                                                Margin="0,6,0,0"
+                                                Padding="10,6" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,12,0,0">
+                                    <TextBlock Text="Hora" Style="{StaticResource ConsultLabelStyle}" />
+                                    <ComboBox ItemsSource="{Binding AvailableTimeSlots}"
+                                              SelectedItem="{Binding NewAppointmentTime, Mode=TwoWay}"
+                                              Style="{StaticResource ConsultComboBoxStyle}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding StringFormat='{}{0:hh\\:mm}'}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,12,18,0">
+                                    <TextBlock Text="Duración" Style="{StaticResource ConsultLabelStyle}" />
+                                    <ComboBox ItemsSource="{Binding AppointmentDurationOptions}"
+                                              SelectedItem="{Binding NewAppointmentDurationMinutes, Mode=TwoWay}"
+                                              Style="{StaticResource ConsultComboBoxStyle}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding StringFormat='{}{0} min'}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,12,0,0">
+                                    <TextBlock Text="Motivo" Style="{StaticResource ConsultLabelStyle}" />
+                                    <TextBox Text="{Binding NewAppointmentReason, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ConsultTextBoxStyle}"
+                                             ToolTip="Describe el motivo de la cita" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12,0,0">
+                                    <TextBlock Text="Notas" Style="{StaticResource ConsultLabelStyle}" />
+                                    <TextBox Text="{Binding NewAppointmentNotes, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ConsultTextBoxStyle}"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             MinHeight="90"
+                                             VerticalContentAlignment="Top"
+                                             ToolTip="Notas internas para la consulta" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                                <Button Content="Agendar cita"
+                                        Command="{Binding ScheduleAppointmentCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Height="42"
+                                        MinWidth="160" />
+                                <Button Content="Limpiar"
+                                        Command="{Binding ResetAppointmentDraftCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Height="42"
+                                        Margin="12,0,0,0"
+                                        MinWidth="140" />
+                                <ProgressBar Width="120"
+                                             Height="6"
+                                             Margin="20,0,0,0"
+                                             Minimum="0"
+                                             Maximum="1"
+                                             IsIndeterminate="True"
+                                             VerticalAlignment="Center"
+                                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="1"
+                                Background="#EEF2FF"
+                                CornerRadius="22"
+                                Padding="22"
+                                Margin="24,0,0,0"
+                                BorderBrush="Transparent">
+                            <StackPanel>
+                                <TextBlock Text="Resumen rápido"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource ConsultAccentAltBrush}" />
+                                <TextBlock Text="Confirma disponibilidad y agrega notas clave antes de guardar."
+                                           Style="{StaticResource CaptionStyle}"
+                                           Margin="0,8,0,16"
+                                           TextWrapping="Wrap" />
+                                <Border Background="#FFFFFF"
+                                        CornerRadius="16"
+                                        Padding="16"
+                                        BorderBrush="{StaticResource SeparatorBrush}"
+                                        BorderThickness="1"
+                                        Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="Paciente seleccionado"
+                                                   Style="{StaticResource CaptionStyle}" />
+                                        <TextBlock Text="{Binding SelectedPatientOption.Name, TargetNullValue='Sin seleccionar'}"
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,4,0,0"
+                                                   Foreground="{StaticResource NeutralDarkBrush}" />
+                                        <TextBlock Text="Doctor asignado"
+                                                   Style="{StaticResource CaptionStyle}"
+                                                   Margin="0,12,0,0" />
+                                        <TextBlock Text="{Binding SelectedDoctorOption.Name, TargetNullValue='Sin asignar'}"
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,4,0,0"
+                                                   Foreground="{StaticResource NeutralDarkBrush}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="#C7D2FE"
+                                        CornerRadius="16"
+                                        Padding="16"
+                                        BorderBrush="Transparent">
+                                    <StackPanel>
+                                        <TextBlock Text="Tip operativo"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource ConsultAccentAltBrush}" />
+                                        <TextBlock Text="Verifica solapamientos antes de confirmar; el sistema te avisará si ya existe una cita para ese horario."
+                                                   Style="{StaticResource CaptionStyle}"
+                                                   Margin="0,6,0,0"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2.2*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Background="#FFFFFF"
+                            CornerRadius="28"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1"
+                            Padding="0"
+                            Margin="0,0,20,0">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#1A1C33" BlurRadius="20" ShadowDepth="8" Opacity="0.06" />
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Border Background="#F8FAFF"
+                                    Padding="24"
+                                    CornerRadius="28,28,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Agenda de citas"
+                                               FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource NeutralDarkBrush}" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Appointments.Count, StringFormat='{}{0} resultados'}"
+                                               Style="{StaticResource CaptionStyle}"
+                                               VerticalAlignment="Center"
+                                               Margin="12,0,0,0" />
+                                </Grid>
+                            </Border>
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding Appointments}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      IsReadOnly="True"
+                                      SelectionMode="Single"
+                                      SelectedItem="{Binding SelectedAppointment, Mode=TwoWay}"
+                                      Style="{StaticResource CardDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource ConsultDataGridHeaderStyle}"
+                                      RowStyle="{StaticResource ConsultDataGridRowStyle}"
+                                      GridLinesVisibility="None"
+                                      BorderThickness="0"
+                                      Margin="20,16,20,24">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Hora" Binding="{Binding ScheduledAt, StringFormat='{}{0:HH:mm}'}" Width="90" />
+                                    <DataGridTextColumn Header="Paciente" Binding="{Binding PatientName}" Width="*" />
+                                    <DataGridTextColumn Header="Doctor" Binding="{Binding DoctorName}" Width="220" />
+                                    <DataGridTemplateColumn Header="Estado" Width="150">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border>
+                                                    <Border.Style>
+                                                        <Style TargetType="Border" BasedOn="{StaticResource ConsultStatusPillStyle}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Programada">
+                                                                    <Setter Property="Background" Value="#EEF2FF" />
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource ConsultAccentBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Confirmada">
+                                                                    <Setter Property="Background" Value="#EEF2FF" />
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource ConsultAccentBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="EnProceso">
+                                                                    <Setter Property="Background" Value="#FFFBEB" />
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Completada">
+                                                                    <Setter Property="Background" Value="#ECFDF5" />
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource SuccessBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Cancelada">
+                                                                    <Setter Property="Background" Value="#FFF1F2" />
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="NoAsistio">
+                                                                    <Setter Property="Background" Value="#FFF1F2" />
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding Status}"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Border}}" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Motivo" Width="2*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Reason}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding Reason}"
+                                                           Foreground="{StaticResource NeutralDarkBrush}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Acciones" Width="260">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <WrapPanel>
+                                                    <Button Content="Completar"
+                                                            Command="{Binding DataContext.MarkCompletedCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource PrimaryButtonStyle}"
+                                                            MinWidth="100"
+                                                            Margin="0,0,8,8"
+                                                            IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
+                                                    <Button Content="Cancelar"
+                                                            Command="{Binding DataContext.MarkCancelledCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource SecondaryButtonStyle}"
+                                                            MinWidth="96"
+                                                            Margin="0,0,8,8"
+                                                            IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
+                                                    <Button Content="No asistió"
+                                                            Command="{Binding DataContext.MarkNoShowCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource DangerButtonStyle}"
+                                                            MinWidth="96"
+                                                            IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
+                                                </WrapPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Background="#FFFFFF"
+                            CornerRadius="28"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1"
+                            Padding="28">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#1A1C33" BlurRadius="20" ShadowDepth="8" Opacity="0.06" />
+                        </Border.Effect>
+                        <Border.Resources>
+                            <DataTemplate x:Key="AppointmentDetailsTemplate" DataType="{x:Type models:AppointmentItemModel}">
+                                <StackPanel>
+                                    <TextBlock Text="Detalle de la cita"
+                                               FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource NeutralDarkBrush}" />
+                                    <TextBlock Text="Información esencial para preparar la consulta."
+                                               Style="{StaticResource CaptionStyle}"
+                                               Margin="0,4,0,18" />
+                                    <Border Background="{StaticResource SurfaceAltBrush}"
+                                            BorderBrush="{StaticResource SeparatorBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="18"
+                                            Padding="18">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding ScheduledAt, StringFormat='{}{0:dddd dd MMMM, HH:mm}'}"
+                                                       FontSize="16"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                                            <TextBlock Text="{Binding Duration, StringFormat='Duración {0:%h\\h\\ %m\\m}'}"
+                                                       Style="{StaticResource CaptionStyle}"
+                                                       Margin="0,6,0,0" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Margin="0,16,0,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource ConsultStatusPillStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Completada">
+                                                        <Setter Property="Background" Value="#ECFDF5" />
+                                                        <Setter Property="BorderBrush" Value="{StaticResource SuccessBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Cancelada">
+                                                        <Setter Property="Background" Value="#FFF1F2" />
+                                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="NoAsistio">
+                                                        <Setter Property="Background" Value="#FFF1F2" />
+                                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="EnProceso">
+                                                        <Setter Property="Background" Value="#FFFBEB" />
+                                                        <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Status}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Border}}" />
+                                    </Border>
+
+                                    <Grid Margin="0,22,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Paciente" Style="{StaticResource CaptionStyle}" />
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PatientName}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource NeutralDarkBrush}" TextWrapping="Wrap" />
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Doctor" Style="{StaticResource CaptionStyle}" Margin="0,12,0,0" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DoctorName}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource NeutralDarkBrush}" Margin="0,12,0,0" TextWrapping="Wrap" />
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Motivo" Style="{StaticResource CaptionStyle}" Margin="0,12,0,0" />
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Reason, TargetNullValue='Sin motivo registrado'}" Margin="0,12,0,0" TextWrapping="Wrap" Foreground="{StaticResource NeutralDarkBrush}" />
+                                    </Grid>
+
+                                    <StackPanel Margin="0,18,0,0">
+                                        <TextBlock Text="Notas" Style="{StaticResource ConsultLabelStyle}" />
+                                        <Border Background="{StaticResource SurfaceAltBrush}"
+                                                BorderBrush="{StaticResource SeparatorBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="16"
+                                                Padding="16"
+                                                Margin="0,8,0,0">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="150">
+                                                <TextBlock Text="{Binding Notes, TargetNullValue='Sin notas registradas'}" TextWrapping="Wrap" Foreground="{StaticResource NeutralDarkBrush}" />
+                                            </ScrollViewer>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <UniformGrid Columns="3" Margin="0,24,0,0" HorizontalAlignment="Stretch">
+                    <Button Content="Marcar completada"
+                                                Command="{Binding DataContext.MarkCompletedCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource PrimaryButtonStyle}"
+                        Height="40"
+                        Margin="0,0,12,0"
+                                                IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
+                                        <Button Content="Cancelar"
+                                                Command="{Binding DataContext.MarkCancelledCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                        Height="40"
+                        Margin="0,0,12,0"
+                                                IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
+                                        <Button Content="No asistió"
+                                                Command="{Binding DataContext.MarkNoShowCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource DangerButtonStyle}"
+                                                Height="40"
+                                                IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
+                                    </UniformGrid>
+                                </StackPanel>
+                            </DataTemplate>
+                        </Border.Resources>
+
+                        <ContentControl Content="{Binding SelectedAppointment}" ContentTemplate="{StaticResource AppointmentDetailsTemplate}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ContentControl">
+                                                <ContentPresenter />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="Content" Value="{x:Null}">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ContentControl">
+                                                        <Border Background="{StaticResource SurfaceAltBrush}"
+                                                                CornerRadius="20"
+                                                                Padding="32"
+                                                                BorderBrush="{StaticResource SeparatorBrush}"
+                                                                BorderThickness="1">
+                                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                                <TextBlock Text="Selecciona una cita para ver el detalle"
+                                                                           TextAlignment="Center"
+                                                                           Foreground="#718096"
+                                                                           FontSize="14" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                        </ContentControl>
+                    </Border>
+                </Grid>
+
+                <Border Background="#FFFFFF"
+                        BorderBrush="{StaticResource SeparatorBrush}"
+                        BorderThickness="1"
+                        CornerRadius="16"
+                        Padding="18"
+                        Margin="0,28,0,0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusMessage}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding StatusMessage}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource NeutralDarkBrush}" />
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

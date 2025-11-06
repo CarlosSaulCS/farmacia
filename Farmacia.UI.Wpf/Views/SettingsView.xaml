@@ -1,0 +1,418 @@
+<UserControl x:Class="Farmacia.UI.Wpf.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="SettingsAccentBrush" Color="#10B981" />
+        <SolidColorBrush x:Key="SettingsAccentAltBrush" Color="#059669" />
+        <SolidColorBrush x:Key="SettingsAccentSoftBrush" Color="#D1FAE5" />
+
+        <LinearGradientBrush x:Key="SettingsHeroBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#ECFDF5" Offset="0" />
+            <GradientStop Color="#FFFFFF" Offset="1" />
+        </LinearGradientBrush>
+
+        <Style x:Key="SettingsLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionStyle}">
+            <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,14,0,4" />
+        </Style>
+
+        <Style x:Key="SettingsTextBoxStyle" TargetType="TextBox">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
+            <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
+            <Setter Property="Margin" Value="0,6,0,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ScrollViewer x:Name="PART_ContentHost" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SettingsBadgeStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Background" Value="#FEF3C7" />
+            <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Visibility" Value="Collapsed" />
+        </Style>
+
+        <Style x:Key="SettingsCalloutStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F8FAFF" />
+            <Setter Property="CornerRadius" Value="18" />
+            <Setter Property="Padding" Value="18" />
+            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="Transparent">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="24,16,24,40">
+                <Border Background="{StaticResource SettingsHeroBrush}"
+                        CornerRadius="30"
+                        Padding="32"
+                        Margin="0,0,0,28">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#1A1C33" BlurRadius="26" ShadowDepth="10" Opacity="0.08" />
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.7*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="Configuración"
+                                       FontSize="28"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="Ajusta la identidad del punto de venta y mantén la base de datos protegida."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,12,0,20"
+                                       TextWrapping="Wrap" />
+                            <WrapPanel Margin="0,0,0,20">
+                                <Border>
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource SettingsBadgeStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasUnsavedChanges}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="Cambios sin guardar"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource WarningBrush}" />
+                                </Border>
+                <Border Style="{StaticResource SettingsBadgeStyle}"
+                                        Background="#ECFDF5"
+                                        BorderBrush="Transparent"
+                                        Margin="12,0,0,12">
+                                    <TextBlock Text="Configura y guarda para mantener consistencia"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource SettingsAccentAltBrush}" />
+                                </Border>
+                            </WrapPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Recargar datos"
+                                        Command="{Binding LoadSettingsCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Height="42"
+                                        MinWidth="150"
+                                        IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}" />
+                                <Button Content="Guardar cambios"
+                                        Command="{Binding SaveSettingsCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Height="42"
+                                        Margin="12,0,0,0"
+                                        MinWidth="160"
+                                        IsEnabled="{Binding HasUnsavedChanges}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="1"
+                                Background="#FFFFFF"
+                                CornerRadius="24"
+                                Padding="24"
+                                Margin="28,0,0,0">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#1A1C33" BlurRadius="20" ShadowDepth="8" Opacity="0.06" />
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Resumen de punto de venta"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource NeutralDarkBrush}" />
+                                <Separator Margin="0,12,0,18" />
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Text="Nombre" Style="{StaticResource CaptionStyle}" />
+                                    <TextBlock Text="{Binding StoreName, TargetNullValue='Sin registrar'}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource NeutralDarkBrush}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock Text="Teléfono" Style="{StaticResource CaptionStyle}" />
+                                    <TextBlock Text="{Binding StorePhone, TargetNullValue='Sin registrar'}"
+                                               Foreground="{StaticResource NeutralDarkBrush}" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="Último respaldo" Style="{StaticResource CaptionStyle}" />
+                                    <TextBlock Text="{Binding LastBackupPath, TargetNullValue='Aún no se ha generado un respaldo.'}"
+                                               TextWrapping="Wrap"
+                                               Foreground="{StaticResource NeutralDarkBrush}" />
+                                </StackPanel>
+                                <ProgressBar Margin="0,22,0,0"
+                                             Height="6"
+                                             Minimum="0"
+                                             Maximum="1"
+                                             IsIndeterminate="True"
+                                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Margin="0,0,0,28">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.6*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Background="#FFFFFF"
+                            CornerRadius="26"
+                            Padding="28"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1"
+                            Margin="0,0,22,0">
+                        <StackPanel>
+                            <TextBlock Text="Identidad del punto de venta"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="Estas referencias aparecen en tus tickets y comunicaciones."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,6,0,20"
+                                       TextWrapping="Wrap" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <TextBlock Text="Nombre comercial" Style="{StaticResource SettingsLabelStyle}" />
+                                    <TextBox Text="{Binding StoreName, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource SettingsTextBoxStyle}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="24,0,0,0">
+                                    <TextBlock Text="Teléfono" Style="{StaticResource SettingsLabelStyle}" />
+                                    <TextBox Text="{Binding StorePhone, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource SettingsTextBoxStyle}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0">
+                                    <TextBlock Text="Dirección" Style="{StaticResource SettingsLabelStyle}" />
+                                    <TextBox Text="{Binding StoreAddress, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource SettingsTextBoxStyle}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,12,0,0">
+                                    <TextBlock Text="Pie del ticket" Style="{StaticResource SettingsLabelStyle}" />
+                                    <Border Background="{StaticResource SurfaceAltBrush}"
+                                            BorderBrush="{StaticResource SeparatorBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="16"
+                                            Padding="0"
+                                            Margin="0,6,0,0">
+                                        <TextBox Text="{Binding TicketFooter, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource SettingsTextBoxStyle}"
+                                                 AcceptsReturn="True"
+                                                 Height="120"
+                                                 TextWrapping="Wrap"
+                                                 BorderThickness="0" />
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Background="#FFFFFF"
+                            CornerRadius="26"
+                            Padding="28"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="Buenas prácticas"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="Mantén ordenados los datos para identificar el negocio rápidamente."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,6,0,18"
+                                       TextWrapping="Wrap" />
+                            <ItemsControl>
+                                <ItemsControl.ItemsSource>
+                                    <x:Array Type="sys:String">
+                                        <sys:String>Usa un número de contacto disponible todo el día.</sys:String>
+                                        <sys:String>Actualiza dirección y mensajes cuando cambies promociones.</sys:String>
+                                        <sys:String>Verifica que el pie de ticket incluya canales de soporte.</sys:String>
+                                    </x:Array>
+                                </ItemsControl.ItemsSource>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                            <Ellipse Width="6" Height="6" Fill="{StaticResource SettingsAccentBrush}" Margin="0,6,8,0" />
+                                            <TextBlock Text="{Binding}" Style="{StaticResource CaptionStyle}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Background="#FFFFFF"
+                            CornerRadius="24"
+                            Padding="28"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1"
+                            Margin="0,0,22,0">
+                        <StackPanel>
+                            <TextBlock Text="Respaldo y mantenimiento"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="Planifica respaldos frecuentes y asegura la continuidad del servicio."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,6,0,18"
+                                       TextWrapping="Wrap" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0"
+                                        Style="{StaticResource SettingsCalloutStyle}"
+                                        Background="#ECFDF5"
+                                        Margin="0,0,18,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Crear respaldo" Style="{StaticResource CaptionStyle}" />
+                                        <TextBlock Text="Genera una copia en tu carpeta segura."
+                                                   Style="{StaticResource CaptionStyle}" />
+                                        <Button Content="Crear respaldo"
+                                                Command="{Binding CreateBackupCommand}"
+                                                Style="{StaticResource PrimaryButtonStyle}"
+                                                Height="40"
+                                                Margin="0,14,0,0"
+                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1"
+                                        Style="{StaticResource SettingsCalloutStyle}"
+                                        Background="#FFF7ED">
+                                    <StackPanel>
+                                        <TextBlock Text="Restaurar respaldo" Style="{StaticResource CaptionStyle}" />
+                                        <TextBlock Text="Selecciona un archivo válido para recuperar la base de datos."
+                                                   Style="{StaticResource CaptionStyle}" />
+                                        <Button Content="Restaurar respaldo"
+                                                Command="{Binding RestoreBackupCommand}"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Height="40"
+                                                Margin="0,14,0,0"
+                                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <Border Style="{StaticResource SettingsCalloutStyle}"
+                                    Margin="0,20,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Último respaldo" Style="{StaticResource CaptionStyle}" />
+                                    <TextBlock Text="{Binding LastBackupPath, TargetNullValue='Aún no se ha generado un respaldo.'}"
+                                               TextWrapping="Wrap"
+                                               Foreground="{StaticResource NeutralDarkBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Background="#FFFFFF"
+                            CornerRadius="24"
+                            Padding="28"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="Notas operativas"
+                                       FontSize="17"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="Documenta tareas de mantenimiento o recordatorios internos."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,6,0,20"
+                                       TextWrapping="Wrap" />
+                            <Border Background="#F8FAFF"
+                                    CornerRadius="16"
+                                    BorderBrush="{StaticResource SeparatorBrush}"
+                                    BorderThickness="1"
+                                    Padding="18">
+                                <StackPanel>
+                                    <TextBlock Text="• Programa respaldos los lunes."
+                                               Style="{StaticResource CaptionStyle}" />
+                                    <TextBlock Text="• Revisa almacenamiento en la nube cada mes."
+                                               Style="{StaticResource CaptionStyle}"
+                                               Margin="0,6,0,0" />
+                                    <TextBlock Text="• Notifica cambios de configuración al equipo."
+                                               Style="{StaticResource CaptionStyle}"
+                                               Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Background="#FFFFFF"
+                        BorderBrush="{StaticResource SeparatorBrush}"
+                        BorderThickness="1"
+                        CornerRadius="18"
+                        Padding="18"
+                        Margin="0,28,0,0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusMessage}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding StatusMessage}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel>
+                        <ProgressBar Style="{StaticResource InlineProgressBar}"
+                                     Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   Foreground="{StaticResource NeutralDarkBrush}"
+                                   Margin="0,10,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

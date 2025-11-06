@@ -1,0 +1,2362 @@
+2025-11-04 14:33:08.950 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 14:33:08.969 -06:00 [INF] Hosting environment: Production
+2025-11-04 14:33:08.970 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\bin\Debug\net8.0-windows
+2025-11-04 14:33:09.634 -06:00 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+PRAGMA journal_mode = 'wal';
+2025-11-04 14:33:09.731 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "clientes" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_clientes" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Phone" TEXT NULL,
+    "BirthDate" TEXT NULL,
+    "Notes" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:33:09.734 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "configuracion" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_configuracion" PRIMARY KEY AUTOINCREMENT,
+    "Key" TEXT NOT NULL,
+    "Value" TEXT NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:33:09.734 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "proveedores" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_proveedores" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Rfc" TEXT NULL,
+    "Phone" TEXT NULL,
+    "Email" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:33:09.734 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "secuencias" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_secuencias" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "CurrentValue" INTEGER NOT NULL,
+    "Prefix" TEXT NOT NULL,
+    "Padding" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:33:09.734 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "users" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_users" PRIMARY KEY AUTOINCREMENT,
+    "Username" TEXT NOT NULL,
+    "FullName" TEXT NOT NULL,
+    "Role" INTEGER NOT NULL,
+    "PasswordHash" TEXT NOT NULL,
+    "MustChangePassword" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:33:09.734 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "pacientes" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_pacientes" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Phone" TEXT NULL,
+    "BirthDate" TEXT NULL,
+    "Notes" TEXT NULL,
+    "GeneralData" TEXT NULL,
+    "Allergies" TEXT NULL,
+    "ChronicConditions" TEXT NULL,
+    "CustomerId" INTEGER NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_pacientes_clientes_CustomerId" FOREIGN KEY ("CustomerId") REFERENCES "clientes" ("Id") ON DELETE SET NULL
+);
+2025-11-04 14:33:09.734 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "productos" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_productos" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NULL,
+    "Presentation" TEXT NULL,
+    "InternalCode" TEXT NULL,
+    "Barcode" TEXT NULL,
+    "SupplierId" INTEGER NULL,
+    "Cost" decimal(12,2) NOT NULL,
+    "Price" decimal(12,2) NOT NULL,
+    "TaxRate" decimal(5,2) NOT NULL,
+    "StockMinimum" decimal(12,2) NOT NULL,
+    "Location" TEXT NULL,
+    "UsesBatches" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_productos_proveedores_SupplierId" FOREIGN KEY ("SupplierId") REFERENCES "proveedores" ("Id") ON DELETE SET NULL
+);
+2025-11-04 14:33:09.734 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "bitacora" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_bitacora" PRIMARY KEY AUTOINCREMENT,
+    "UserId" INTEGER NOT NULL,
+    "Action" TEXT NOT NULL,
+    "Detail" TEXT NULL,
+    "OccurredAt" TEXT NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_bitacora_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "compras" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_compras" PRIMARY KEY AUTOINCREMENT,
+    "Folio" TEXT NOT NULL,
+    "PurchaseDate" TEXT NOT NULL,
+    "Total" decimal(12,2) NOT NULL,
+    "SupplierId" INTEGER NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_compras_proveedores_SupplierId" FOREIGN KEY ("SupplierId") REFERENCES "proveedores" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_compras_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "cortes_caja" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_cortes_caja" PRIMARY KEY AUTOINCREMENT,
+    "SessionCode" TEXT NOT NULL,
+    "OpenedAt" TEXT NOT NULL,
+    "ClosedAt" TEXT NULL,
+    "OpeningAmount" decimal(12,2) NOT NULL,
+    "ClosingAmount" decimal(12,2) NULL,
+    "OpenedByUserId" INTEGER NOT NULL,
+    "ClosedByUserId" INTEGER NULL,
+    "IsZCut" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_cortes_caja_users_ClosedByUserId" FOREIGN KEY ("ClosedByUserId") REFERENCES "users" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_cortes_caja_users_OpenedByUserId" FOREIGN KEY ("OpenedByUserId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "ventas" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_ventas" PRIMARY KEY AUTOINCREMENT,
+    "Folio" TEXT NOT NULL,
+    "SaleDate" TEXT NOT NULL,
+    "Subtotal" decimal(12,2) NOT NULL,
+    "TaxTotal" decimal(12,2) NOT NULL,
+    "Total" decimal(12,2) NOT NULL,
+    "CashReceived" decimal(12,2) NULL,
+    "CardReceived" decimal(12,2) NULL,
+    "ChangeGiven" decimal(12,2) NULL,
+    "PaymentMethod" INTEGER NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    "CustomerId" INTEGER NULL,
+    "Notes" TEXT NULL,
+    "RelatedSaleId" INTEGER NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_ventas_clientes_CustomerId" FOREIGN KEY ("CustomerId") REFERENCES "clientes" ("Id") ON DELETE SET NULL,
+    CONSTRAINT "FK_ventas_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_ventas_ventas_RelatedSaleId" FOREIGN KEY ("RelatedSaleId") REFERENCES "ventas" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "consultas" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_consultas" PRIMARY KEY AUTOINCREMENT,
+    "PatientId" INTEGER NOT NULL,
+    "DoctorId" INTEGER NOT NULL,
+    "ConsultationDate" TEXT NOT NULL,
+    "HeightMeters" TEXT NULL,
+    "WeightKg" TEXT NULL,
+    "TemperatureC" TEXT NULL,
+    "HeartRate" INTEGER NULL,
+    "SystolicPressure" INTEGER NULL,
+    "DiastolicPressure" INTEGER NULL,
+    "ChiefComplaint" TEXT NULL,
+    "Diagnosis" TEXT NULL,
+    "TreatmentPlan" TEXT NULL,
+    "Notes" TEXT NULL,
+    "PrescriptionFolio" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_consultas_pacientes_PatientId" FOREIGN KEY ("PatientId") REFERENCES "pacientes" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_consultas_users_DoctorId" FOREIGN KEY ("DoctorId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "lotes" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_lotes" PRIMARY KEY AUTOINCREMENT,
+    "LotCode" TEXT NOT NULL,
+    "ExpirationDate" TEXT NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "RemainingQuantity" decimal(12,2) NOT NULL,
+    "ProductId" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_lotes_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "compra_detalle" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_compra_detalle" PRIMARY KEY AUTOINCREMENT,
+    "PurchaseId" INTEGER NOT NULL,
+    "ProductId" INTEGER NOT NULL,
+    "LotCode" TEXT NULL,
+    "ExpirationDate" TEXT NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "UnitCost" decimal(12,2) NOT NULL,
+    "TaxRate" decimal(5,2) NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_compra_detalle_compras_PurchaseId" FOREIGN KEY ("PurchaseId") REFERENCES "compras" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_compra_detalle_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "movimientos_caja" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_movimientos_caja" PRIMARY KEY AUTOINCREMENT,
+    "CashSessionId" INTEGER NOT NULL,
+    "MovementDate" TEXT NOT NULL,
+    "Amount" decimal(12,2) NOT NULL,
+    "Concept" TEXT NOT NULL,
+    "IsIncome" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_movimientos_caja_cortes_caja_CashSessionId" FOREIGN KEY ("CashSessionId") REFERENCES "cortes_caja" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "devoluciones" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_devoluciones" PRIMARY KEY AUTOINCREMENT,
+    "Folio" TEXT NOT NULL,
+    "ReturnDate" TEXT NOT NULL,
+    "Reason" TEXT NULL,
+    "SaleId" INTEGER NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_devoluciones_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_devoluciones_ventas_SaleId" FOREIGN KEY ("SaleId") REFERENCES "ventas" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "citas" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_citas" PRIMARY KEY AUTOINCREMENT,
+    "PatientId" INTEGER NOT NULL,
+    "DoctorId" INTEGER NOT NULL,
+    "ScheduledAt" TEXT NOT NULL,
+    "Duration" INTEGER NOT NULL,
+    "Status" INTEGER NOT NULL,
+    "Reason" TEXT NULL,
+    "Notes" TEXT NULL,
+    "ConsultationId" INTEGER NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_citas_consultas_ConsultationId" FOREIGN KEY ("ConsultationId") REFERENCES "consultas" ("Id"),
+    CONSTRAINT "FK_citas_pacientes_PatientId" FOREIGN KEY ("PatientId") REFERENCES "pacientes" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_citas_users_DoctorId" FOREIGN KEY ("DoctorId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "receta_detalle" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_receta_detalle" PRIMARY KEY AUTOINCREMENT,
+    "ConsultationId" INTEGER NOT NULL,
+    "ProductName" TEXT NOT NULL,
+    "Dosage" TEXT NULL,
+    "Instructions" TEXT NULL,
+    "Duration" TEXT NULL,
+    "ProductId" INTEGER NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_receta_detalle_consultas_ConsultationId" FOREIGN KEY ("ConsultationId") REFERENCES "consultas" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_receta_detalle_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE SET NULL
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "movimientos_inventario" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_movimientos_inventario" PRIMARY KEY AUTOINCREMENT,
+    "ProductId" INTEGER NOT NULL,
+    "ProductLotId" INTEGER NULL,
+    "MovementType" INTEGER NOT NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "Reason" TEXT NULL,
+    "UserId" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_movimientos_inventario_lotes_ProductLotId" FOREIGN KEY ("ProductLotId") REFERENCES "lotes" ("Id") ON DELETE SET NULL,
+    CONSTRAINT "FK_movimientos_inventario_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_movimientos_inventario_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "venta_detalle" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_venta_detalle" PRIMARY KEY AUTOINCREMENT,
+    "SaleId" INTEGER NOT NULL,
+    "ProductId" INTEGER NOT NULL,
+    "ProductLotId" INTEGER NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "UnitPrice" decimal(12,2) NOT NULL,
+    "Discount" decimal(12,2) NOT NULL,
+    "TaxRate" decimal(5,2) NOT NULL,
+    "LineTotal" decimal(12,2) NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_venta_detalle_lotes_ProductLotId" FOREIGN KEY ("ProductLotId") REFERENCES "lotes" ("Id") ON DELETE SET NULL,
+    CONSTRAINT "FK_venta_detalle_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_venta_detalle_ventas_SaleId" FOREIGN KEY ("SaleId") REFERENCES "ventas" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:33:09.735 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "devolucion_detalle" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_devolucion_detalle" PRIMARY KEY AUTOINCREMENT,
+    "ReturnOperationId" INTEGER NOT NULL,
+    "SaleLineId" INTEGER NOT NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "Notes" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_devolucion_detalle_devoluciones_ReturnOperationId" FOREIGN KEY ("ReturnOperationId") REFERENCES "devoluciones" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_devolucion_detalle_venta_detalle_SaleLineId" FOREIGN KEY ("SaleLineId") REFERENCES "venta_detalle" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_bitacora_UserId" ON "bitacora" ("UserId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_citas_ConsultationId" ON "citas" ("ConsultationId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_citas_DoctorId" ON "citas" ("DoctorId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_citas_PatientId" ON "citas" ("PatientId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_compra_detalle_ProductId" ON "compra_detalle" ("ProductId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_compra_detalle_PurchaseId" ON "compra_detalle" ("PurchaseId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_compras_Folio" ON "compras" ("Folio");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_compras_SupplierId" ON "compras" ("SupplierId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_compras_UserId" ON "compras" ("UserId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_configuracion_Key" ON "configuracion" ("Key");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_consultas_DoctorId" ON "consultas" ("DoctorId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_consultas_PatientId" ON "consultas" ("PatientId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_consultas_PrescriptionFolio" ON "consultas" ("PrescriptionFolio");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_cortes_caja_ClosedByUserId" ON "cortes_caja" ("ClosedByUserId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_cortes_caja_OpenedByUserId" ON "cortes_caja" ("OpenedByUserId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_cortes_caja_SessionCode" ON "cortes_caja" ("SessionCode");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_devolucion_detalle_ReturnOperationId" ON "devolucion_detalle" ("ReturnOperationId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_devolucion_detalle_SaleLineId" ON "devolucion_detalle" ("SaleLineId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_devoluciones_Folio" ON "devoluciones" ("Folio");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_devoluciones_SaleId" ON "devoluciones" ("SaleId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_devoluciones_UserId" ON "devoluciones" ("UserId");
+2025-11-04 14:33:09.736 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_lotes_ProductId" ON "lotes" ("ProductId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_movimientos_caja_CashSessionId" ON "movimientos_caja" ("CashSessionId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_movimientos_inventario_ProductId" ON "movimientos_inventario" ("ProductId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_movimientos_inventario_ProductLotId" ON "movimientos_inventario" ("ProductLotId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_movimientos_inventario_UserId" ON "movimientos_inventario" ("UserId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_pacientes_CustomerId" ON "pacientes" ("CustomerId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_productos_Barcode" ON "productos" ("Barcode");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_productos_InternalCode" ON "productos" ("InternalCode");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_productos_SupplierId" ON "productos" ("SupplierId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_receta_detalle_ConsultationId" ON "receta_detalle" ("ConsultationId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_receta_detalle_ProductId" ON "receta_detalle" ("ProductId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_users_Username" ON "users" ("Username");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_venta_detalle_ProductId" ON "venta_detalle" ("ProductId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_venta_detalle_ProductLotId" ON "venta_detalle" ("ProductLotId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_venta_detalle_SaleId" ON "venta_detalle" ("SaleId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_ventas_CustomerId" ON "ventas" ("CustomerId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_ventas_Folio" ON "ventas" ("Folio");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_ventas_RelatedSaleId" ON "ventas" ("RelatedSaleId");
+2025-11-04 14:33:09.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_ventas_UserId" ON "ventas" ("UserId");
+2025-11-04 14:33:09.858 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 14:33:09.917 -06:00 [INF] Usuarios de ejemplo generados (contraseña Admin123!).
+2025-11-04 14:33:09.919 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 14:33:09.931 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 14:33:09.970 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 14:33:09.996 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 14:33:10.006 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 14:33:10.078 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Date), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 11), @p4='?', @p5='?' (Size = 8), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "clientes" ("BirthDate", "CreatedAt", "IsActive", "Name", "Notes", "Phone", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:33:10.087 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Boolean), @p2='?' (Size = 17), @p3='?' (DbType = DateTime), @p4='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "configuracion" ("CreatedAt", "IsActive", "Key", "UpdatedAt", "Value")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+2025-11-04 14:33:10.088 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Boolean), @p2='?' (Size = 20), @p3='?' (DbType = DateTime), @p4='?' (Size = 26)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "configuracion" ("CreatedAt", "IsActive", "Key", "UpdatedAt", "Value")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+2025-11-04 14:33:10.088 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Boolean), @p2='?' (Size = 18), @p3='?' (DbType = DateTime), @p4='?' (Size = 8)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "configuracion" ("CreatedAt", "IsActive", "Key", "UpdatedAt", "Value")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+2025-11-04 14:33:10.088 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Boolean), @p2='?' (Size = 20), @p3='?' (DbType = DateTime), @p4='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "configuracion" ("CreatedAt", "IsActive", "Key", "UpdatedAt", "Value")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+2025-11-04 14:33:10.088 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?', @p1='?' (DbType = Date), @p2='?', @p3='?' (DbType = DateTime), @p4='?' (DbType = Int32), @p5='?', @p6='?' (DbType = Boolean), @p7='?' (Size = 11), @p8='?' (Size = 23), @p9='?' (Size = 8), @p10='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "pacientes" ("Allergies", "BirthDate", "ChronicConditions", "CreatedAt", "CustomerId", "GeneralData", "IsActive", "Name", "Notes", "Phone", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)
+RETURNING "Id";
+2025-11-04 14:33:10.089 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 13), @p1='?' (DbType = Decimal), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?', @p7='?' (Size = 29), @p8='?' (Size = 4), @p9='?' (DbType = Decimal), @p10='?' (DbType = Decimal), @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime), @p14='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "productos" ("Barcode", "Cost", "CreatedAt", "Description", "InternalCode", "IsActive", "Location", "Name", "Presentation", "Price", "StockMinimum", "SupplierId", "TaxRate", "UpdatedAt", "UsesBatches")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)
+RETURNING "Id";
+2025-11-04 14:33:10.091 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 13), @p1='?' (DbType = Decimal), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?', @p7='?' (Size = 28), @p8='?' (Size = 7), @p9='?' (DbType = Decimal), @p10='?' (DbType = Decimal), @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime), @p14='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "productos" ("Barcode", "Cost", "CreatedAt", "Description", "InternalCode", "IsActive", "Location", "Name", "Presentation", "Price", "StockMinimum", "SupplierId", "TaxRate", "UpdatedAt", "UsesBatches")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)
+RETURNING "Id";
+2025-11-04 14:33:10.091 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 13), @p1='?' (DbType = Decimal), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?', @p7='?' (Size = 16), @p8='?' (Size = 6), @p9='?' (DbType = Decimal), @p10='?' (DbType = Decimal), @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime), @p14='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "productos" ("Barcode", "Cost", "CreatedAt", "Description", "InternalCode", "IsActive", "Location", "Name", "Presentation", "Price", "StockMinimum", "SupplierId", "TaxRate", "UpdatedAt", "UsesBatches")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)
+RETURNING "Id";
+2025-11-04 14:33:10.091 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (Size = 25), @p4='?' (Size = 8), @p5='?', @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "proveedores" ("CreatedAt", "Email", "IsActive", "Name", "Phone", "Rfc", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:33:10.092 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (Size = 23), @p4='?' (Size = 8), @p5='?', @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "proveedores" ("CreatedAt", "Email", "IsActive", "Name", "Phone", "Rfc", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:33:10.092 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 5), @p4='?' (DbType = Int32), @p5='?' (Size = 2), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:33:10.093 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 6), @p4='?' (DbType = Int32), @p5='?' (Size = 2), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:33:10.093 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 6), @p4='?' (DbType = Int32), @p5='?' (Size = 2), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:33:10.093 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 10), @p4='?' (DbType = Int32), @p5='?' (Size = 2), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:33:10.093 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 5), @p4='?' (DbType = Int32), @p5='?' (Size = 3), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:33:10.094 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 13), @p2='?' (DbType = Boolean), @p3='?' (DbType = Boolean), @p4='?' (Size = 64), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "users" ("CreatedAt", "FullName", "IsActive", "MustChangePassword", "PasswordHash", "Role", "UpdatedAt", "Username")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:33:10.095 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 16), @p2='?' (DbType = Boolean), @p3='?' (DbType = Boolean), @p4='?' (Size = 64), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (Size = 6)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "users" ("CreatedAt", "FullName", "IsActive", "MustChangePassword", "PasswordHash", "Role", "UpdatedAt", "Username")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:33:10.095 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 23), @p2='?' (DbType = Boolean), @p3='?' (DbType = Boolean), @p4='?' (Size = 64), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (Size = 9)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "users" ("CreatedAt", "FullName", "IsActive", "MustChangePassword", "PasswordHash", "Role", "UpdatedAt", "Username")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:33:10.095 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 17), @p2='?' (DbType = Boolean), @p3='?' (DbType = Boolean), @p4='?' (Size = 64), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (Size = 6)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "users" ("CreatedAt", "FullName", "IsActive", "MustChangePassword", "PasswordHash", "Role", "UpdatedAt", "Username")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:33:10.095 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p8='?' (DbType = DateTime), @p9='?' (DbType = Date), @p10='?' (DbType = Boolean), @p11='?' (Size = 8), @p12='?' (DbType = Int32), @p13='?' (DbType = Decimal), @p14='?' (DbType = Decimal), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "lotes" ("CreatedAt", "ExpirationDate", "IsActive", "LotCode", "ProductId", "Quantity", "RemainingQuantity", "UpdatedAt")
+VALUES (@p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15)
+RETURNING "Id";
+2025-11-04 14:33:10.096 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Date), @p2='?' (DbType = Boolean), @p3='?' (Size = 8), @p4='?' (DbType = Int32), @p5='?' (DbType = Decimal), @p6='?' (DbType = Decimal), @p7='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "lotes" ("CreatedAt", "ExpirationDate", "IsActive", "LotCode", "ProductId", "Quantity", "RemainingQuantity", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:33:10.096 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?', @p1='?' (DbType = Date), @p2='?', @p3='?' (DbType = DateTime), @p4='?' (DbType = Int32), @p5='?', @p6='?' (DbType = Boolean), @p7='?' (Size = 11), @p8='?' (Size = 18), @p9='?' (Size = 8), @p10='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "pacientes" ("Allergies", "BirthDate", "ChronicConditions", "CreatedAt", "CustomerId", "GeneralData", "IsActive", "Name", "Notes", "Phone", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)
+RETURNING "Id";
+2025-11-04 14:34:20.134 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:34:21.641 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:34:26.710 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:34:27.893 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:37:48.540 -06:00 [INF] Application is shutting down...
+2025-11-04 14:38:41.570 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 14:38:41.589 -06:00 [INF] Hosting environment: Production
+2025-11-04 14:38:41.589 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\bin\Debug\net8.0-windows
+2025-11-04 14:38:42.020 -06:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 14:38:42.154 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 14:38:42.160 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 14:38:42.162 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 14:38:42.164 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 14:38:42.165 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 14:38:42.167 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 14:38:49.770 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:39:04.239 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:39:05.799 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:39:12.272 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:39:12.636 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:39:12.939 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:39:13.184 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:39:13.397 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:39:13.690 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:40:06.216 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:46:13.877 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:46:14.196 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:46:14.411 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:46:14.604 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:46:14.806 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:47:30.992 -06:00 [INF] Application is shutting down...
+2025-11-04 14:54:46.387 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 14:54:46.407 -06:00 [INF] Hosting environment: Production
+2025-11-04 14:54:46.407 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 14:54:46.834 -06:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 14:54:46.965 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 14:54:46.971 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 14:54:46.972 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 14:54:46.974 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 14:54:46.975 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 14:54:46.977 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 14:55:01.224 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:55:01.961 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:55:02.160 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:55:02.330 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 14:55:03.240 -06:00 [INF] Application is shutting down...
+2025-11-04 14:55:42.393 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 14:55:42.415 -06:00 [INF] Hosting environment: Production
+2025-11-04 14:55:42.415 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 14:55:42.905 -06:00 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+PRAGMA journal_mode = 'wal';
+2025-11-04 14:55:43.010 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "clientes" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_clientes" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Phone" TEXT NULL,
+    "BirthDate" TEXT NULL,
+    "Notes" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "configuracion" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_configuracion" PRIMARY KEY AUTOINCREMENT,
+    "Key" TEXT NOT NULL,
+    "Value" TEXT NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "proveedores" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_proveedores" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Rfc" TEXT NULL,
+    "Phone" TEXT NULL,
+    "Email" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "secuencias" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_secuencias" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "CurrentValue" INTEGER NOT NULL,
+    "Prefix" TEXT NOT NULL,
+    "Padding" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "users" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_users" PRIMARY KEY AUTOINCREMENT,
+    "Username" TEXT NOT NULL,
+    "FullName" TEXT NOT NULL,
+    "Role" INTEGER NOT NULL,
+    "PasswordHash" TEXT NOT NULL,
+    "MustChangePassword" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "pacientes" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_pacientes" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Phone" TEXT NULL,
+    "BirthDate" TEXT NULL,
+    "Notes" TEXT NULL,
+    "GeneralData" TEXT NULL,
+    "Allergies" TEXT NULL,
+    "ChronicConditions" TEXT NULL,
+    "CustomerId" INTEGER NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_pacientes_clientes_CustomerId" FOREIGN KEY ("CustomerId") REFERENCES "clientes" ("Id") ON DELETE SET NULL
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "productos" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_productos" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NULL,
+    "Presentation" TEXT NULL,
+    "InternalCode" TEXT NULL,
+    "Barcode" TEXT NULL,
+    "SupplierId" INTEGER NULL,
+    "Cost" decimal(12,2) NOT NULL,
+    "Price" decimal(12,2) NOT NULL,
+    "TaxRate" decimal(5,2) NOT NULL,
+    "StockMinimum" decimal(12,2) NOT NULL,
+    "Location" TEXT NULL,
+    "UsesBatches" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_productos_proveedores_SupplierId" FOREIGN KEY ("SupplierId") REFERENCES "proveedores" ("Id") ON DELETE SET NULL
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "bitacora" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_bitacora" PRIMARY KEY AUTOINCREMENT,
+    "UserId" INTEGER NOT NULL,
+    "Action" TEXT NOT NULL,
+    "Detail" TEXT NULL,
+    "OccurredAt" TEXT NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_bitacora_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "compras" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_compras" PRIMARY KEY AUTOINCREMENT,
+    "Folio" TEXT NOT NULL,
+    "PurchaseDate" TEXT NOT NULL,
+    "Total" decimal(12,2) NOT NULL,
+    "SupplierId" INTEGER NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_compras_proveedores_SupplierId" FOREIGN KEY ("SupplierId") REFERENCES "proveedores" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_compras_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "cortes_caja" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_cortes_caja" PRIMARY KEY AUTOINCREMENT,
+    "SessionCode" TEXT NOT NULL,
+    "OpenedAt" TEXT NOT NULL,
+    "ClosedAt" TEXT NULL,
+    "OpeningAmount" decimal(12,2) NOT NULL,
+    "ClosingAmount" decimal(12,2) NULL,
+    "OpenedByUserId" INTEGER NOT NULL,
+    "ClosedByUserId" INTEGER NULL,
+    "IsZCut" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_cortes_caja_users_ClosedByUserId" FOREIGN KEY ("ClosedByUserId") REFERENCES "users" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_cortes_caja_users_OpenedByUserId" FOREIGN KEY ("OpenedByUserId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:55:43.012 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "ventas" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_ventas" PRIMARY KEY AUTOINCREMENT,
+    "Folio" TEXT NOT NULL,
+    "SaleDate" TEXT NOT NULL,
+    "Subtotal" decimal(12,2) NOT NULL,
+    "TaxTotal" decimal(12,2) NOT NULL,
+    "Total" decimal(12,2) NOT NULL,
+    "CashReceived" decimal(12,2) NULL,
+    "CardReceived" decimal(12,2) NULL,
+    "ChangeGiven" decimal(12,2) NULL,
+    "PaymentMethod" INTEGER NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    "CustomerId" INTEGER NULL,
+    "Notes" TEXT NULL,
+    "RelatedSaleId" INTEGER NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_ventas_clientes_CustomerId" FOREIGN KEY ("CustomerId") REFERENCES "clientes" ("Id") ON DELETE SET NULL,
+    CONSTRAINT "FK_ventas_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_ventas_ventas_RelatedSaleId" FOREIGN KEY ("RelatedSaleId") REFERENCES "ventas" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "consultas" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_consultas" PRIMARY KEY AUTOINCREMENT,
+    "PatientId" INTEGER NOT NULL,
+    "DoctorId" INTEGER NOT NULL,
+    "ConsultationDate" TEXT NOT NULL,
+    "HeightMeters" TEXT NULL,
+    "WeightKg" TEXT NULL,
+    "TemperatureC" TEXT NULL,
+    "HeartRate" INTEGER NULL,
+    "SystolicPressure" INTEGER NULL,
+    "DiastolicPressure" INTEGER NULL,
+    "ChiefComplaint" TEXT NULL,
+    "Diagnosis" TEXT NULL,
+    "TreatmentPlan" TEXT NULL,
+    "Notes" TEXT NULL,
+    "PrescriptionFolio" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_consultas_pacientes_PatientId" FOREIGN KEY ("PatientId") REFERENCES "pacientes" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_consultas_users_DoctorId" FOREIGN KEY ("DoctorId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "lotes" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_lotes" PRIMARY KEY AUTOINCREMENT,
+    "LotCode" TEXT NOT NULL,
+    "ExpirationDate" TEXT NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "RemainingQuantity" decimal(12,2) NOT NULL,
+    "ProductId" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_lotes_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "compra_detalle" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_compra_detalle" PRIMARY KEY AUTOINCREMENT,
+    "PurchaseId" INTEGER NOT NULL,
+    "ProductId" INTEGER NOT NULL,
+    "LotCode" TEXT NULL,
+    "ExpirationDate" TEXT NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "UnitCost" decimal(12,2) NOT NULL,
+    "TaxRate" decimal(5,2) NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_compra_detalle_compras_PurchaseId" FOREIGN KEY ("PurchaseId") REFERENCES "compras" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_compra_detalle_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "movimientos_caja" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_movimientos_caja" PRIMARY KEY AUTOINCREMENT,
+    "CashSessionId" INTEGER NOT NULL,
+    "MovementDate" TEXT NOT NULL,
+    "Amount" decimal(12,2) NOT NULL,
+    "Concept" TEXT NOT NULL,
+    "IsIncome" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_movimientos_caja_cortes_caja_CashSessionId" FOREIGN KEY ("CashSessionId") REFERENCES "cortes_caja" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "devoluciones" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_devoluciones" PRIMARY KEY AUTOINCREMENT,
+    "Folio" TEXT NOT NULL,
+    "ReturnDate" TEXT NOT NULL,
+    "Reason" TEXT NULL,
+    "SaleId" INTEGER NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_devoluciones_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_devoluciones_ventas_SaleId" FOREIGN KEY ("SaleId") REFERENCES "ventas" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "citas" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_citas" PRIMARY KEY AUTOINCREMENT,
+    "PatientId" INTEGER NOT NULL,
+    "DoctorId" INTEGER NOT NULL,
+    "ScheduledAt" TEXT NOT NULL,
+    "Duration" INTEGER NOT NULL,
+    "Status" INTEGER NOT NULL,
+    "Reason" TEXT NULL,
+    "Notes" TEXT NULL,
+    "ConsultationId" INTEGER NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_citas_consultas_ConsultationId" FOREIGN KEY ("ConsultationId") REFERENCES "consultas" ("Id"),
+    CONSTRAINT "FK_citas_pacientes_PatientId" FOREIGN KEY ("PatientId") REFERENCES "pacientes" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_citas_users_DoctorId" FOREIGN KEY ("DoctorId") REFERENCES "users" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "receta_detalle" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_receta_detalle" PRIMARY KEY AUTOINCREMENT,
+    "ConsultationId" INTEGER NOT NULL,
+    "ProductName" TEXT NOT NULL,
+    "Dosage" TEXT NULL,
+    "Instructions" TEXT NULL,
+    "Duration" TEXT NULL,
+    "ProductId" INTEGER NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_receta_detalle_consultas_ConsultationId" FOREIGN KEY ("ConsultationId") REFERENCES "consultas" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_receta_detalle_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE SET NULL
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "movimientos_inventario" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_movimientos_inventario" PRIMARY KEY AUTOINCREMENT,
+    "ProductId" INTEGER NOT NULL,
+    "ProductLotId" INTEGER NULL,
+    "MovementType" INTEGER NOT NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "Reason" TEXT NULL,
+    "UserId" INTEGER NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_movimientos_inventario_lotes_ProductLotId" FOREIGN KEY ("ProductLotId") REFERENCES "lotes" ("Id") ON DELETE SET NULL,
+    CONSTRAINT "FK_movimientos_inventario_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_movimientos_inventario_users_UserId" FOREIGN KEY ("UserId") REFERENCES "users" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "venta_detalle" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_venta_detalle" PRIMARY KEY AUTOINCREMENT,
+    "SaleId" INTEGER NOT NULL,
+    "ProductId" INTEGER NOT NULL,
+    "ProductLotId" INTEGER NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "UnitPrice" decimal(12,2) NOT NULL,
+    "Discount" decimal(12,2) NOT NULL,
+    "TaxRate" decimal(5,2) NOT NULL,
+    "LineTotal" decimal(12,2) NOT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_venta_detalle_lotes_ProductLotId" FOREIGN KEY ("ProductLotId") REFERENCES "lotes" ("Id") ON DELETE SET NULL,
+    CONSTRAINT "FK_venta_detalle_productos_ProductId" FOREIGN KEY ("ProductId") REFERENCES "productos" ("Id") ON DELETE RESTRICT,
+    CONSTRAINT "FK_venta_detalle_ventas_SaleId" FOREIGN KEY ("SaleId") REFERENCES "ventas" ("Id") ON DELETE CASCADE
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "devolucion_detalle" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_devolucion_detalle" PRIMARY KEY AUTOINCREMENT,
+    "ReturnOperationId" INTEGER NOT NULL,
+    "SaleLineId" INTEGER NOT NULL,
+    "Quantity" decimal(12,2) NOT NULL,
+    "Notes" TEXT NULL,
+    "CreatedAt" TEXT NOT NULL,
+    "UpdatedAt" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    CONSTRAINT "FK_devolucion_detalle_devoluciones_ReturnOperationId" FOREIGN KEY ("ReturnOperationId") REFERENCES "devoluciones" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_devolucion_detalle_venta_detalle_SaleLineId" FOREIGN KEY ("SaleLineId") REFERENCES "venta_detalle" ("Id") ON DELETE RESTRICT
+);
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_bitacora_UserId" ON "bitacora" ("UserId");
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_citas_ConsultationId" ON "citas" ("ConsultationId");
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_citas_DoctorId" ON "citas" ("DoctorId");
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_citas_PatientId" ON "citas" ("PatientId");
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_compra_detalle_ProductId" ON "compra_detalle" ("ProductId");
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_compra_detalle_PurchaseId" ON "compra_detalle" ("PurchaseId");
+2025-11-04 14:55:43.013 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_compras_Folio" ON "compras" ("Folio");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_compras_SupplierId" ON "compras" ("SupplierId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_compras_UserId" ON "compras" ("UserId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_configuracion_Key" ON "configuracion" ("Key");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_consultas_DoctorId" ON "consultas" ("DoctorId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_consultas_PatientId" ON "consultas" ("PatientId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_consultas_PrescriptionFolio" ON "consultas" ("PrescriptionFolio");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_cortes_caja_ClosedByUserId" ON "cortes_caja" ("ClosedByUserId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_cortes_caja_OpenedByUserId" ON "cortes_caja" ("OpenedByUserId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_cortes_caja_SessionCode" ON "cortes_caja" ("SessionCode");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_devolucion_detalle_ReturnOperationId" ON "devolucion_detalle" ("ReturnOperationId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_devolucion_detalle_SaleLineId" ON "devolucion_detalle" ("SaleLineId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_devoluciones_Folio" ON "devoluciones" ("Folio");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_devoluciones_SaleId" ON "devoluciones" ("SaleId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_devoluciones_UserId" ON "devoluciones" ("UserId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_lotes_ProductId" ON "lotes" ("ProductId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_movimientos_caja_CashSessionId" ON "movimientos_caja" ("CashSessionId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_movimientos_inventario_ProductId" ON "movimientos_inventario" ("ProductId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_movimientos_inventario_ProductLotId" ON "movimientos_inventario" ("ProductLotId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_movimientos_inventario_UserId" ON "movimientos_inventario" ("UserId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_pacientes_CustomerId" ON "pacientes" ("CustomerId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_productos_Barcode" ON "productos" ("Barcode");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_productos_InternalCode" ON "productos" ("InternalCode");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_productos_SupplierId" ON "productos" ("SupplierId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_receta_detalle_ConsultationId" ON "receta_detalle" ("ConsultationId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_receta_detalle_ProductId" ON "receta_detalle" ("ProductId");
+2025-11-04 14:55:43.014 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_users_Username" ON "users" ("Username");
+2025-11-04 14:55:43.015 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_venta_detalle_ProductId" ON "venta_detalle" ("ProductId");
+2025-11-04 14:55:43.015 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_venta_detalle_ProductLotId" ON "venta_detalle" ("ProductLotId");
+2025-11-04 14:55:43.015 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_venta_detalle_SaleId" ON "venta_detalle" ("SaleId");
+2025-11-04 14:55:43.015 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_ventas_CustomerId" ON "ventas" ("CustomerId");
+2025-11-04 14:55:43.015 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE UNIQUE INDEX "IX_ventas_Folio" ON "ventas" ("Folio");
+2025-11-04 14:55:43.015 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_ventas_RelatedSaleId" ON "ventas" ("RelatedSaleId");
+2025-11-04 14:55:43.015 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_ventas_UserId" ON "ventas" ("UserId");
+2025-11-04 14:55:43.137 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 14:55:43.194 -06:00 [INF] Usuarios de ejemplo generados (contraseña Admin123!).
+2025-11-04 14:55:43.196 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 14:55:43.210 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 14:55:43.251 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 14:55:43.274 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 14:55:43.284 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 14:55:43.363 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Date), @p1='?' (DbType = DateTime), @p2='?' (DbType = Boolean), @p3='?' (Size = 11), @p4='?', @p5='?' (Size = 8), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "clientes" ("BirthDate", "CreatedAt", "IsActive", "Name", "Notes", "Phone", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:55:43.373 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Boolean), @p2='?' (Size = 17), @p3='?' (DbType = DateTime), @p4='?' (Size = 18)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "configuracion" ("CreatedAt", "IsActive", "Key", "UpdatedAt", "Value")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+2025-11-04 14:55:43.374 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Boolean), @p2='?' (Size = 20), @p3='?' (DbType = DateTime), @p4='?' (Size = 26)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "configuracion" ("CreatedAt", "IsActive", "Key", "UpdatedAt", "Value")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+2025-11-04 14:55:43.374 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Boolean), @p2='?' (Size = 18), @p3='?' (DbType = DateTime), @p4='?' (Size = 8)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "configuracion" ("CreatedAt", "IsActive", "Key", "UpdatedAt", "Value")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+2025-11-04 14:55:43.374 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Boolean), @p2='?' (Size = 20), @p3='?' (DbType = DateTime), @p4='?' (Size = 23)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "configuracion" ("CreatedAt", "IsActive", "Key", "UpdatedAt", "Value")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+2025-11-04 14:55:43.374 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?', @p1='?' (DbType = Date), @p2='?', @p3='?' (DbType = DateTime), @p4='?' (DbType = Int32), @p5='?', @p6='?' (DbType = Boolean), @p7='?' (Size = 11), @p8='?' (Size = 23), @p9='?' (Size = 8), @p10='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "pacientes" ("Allergies", "BirthDate", "ChronicConditions", "CreatedAt", "CustomerId", "GeneralData", "IsActive", "Name", "Notes", "Phone", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)
+RETURNING "Id";
+2025-11-04 14:55:43.375 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 13), @p1='?' (DbType = Decimal), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?', @p7='?' (Size = 29), @p8='?' (Size = 4), @p9='?' (DbType = Decimal), @p10='?' (DbType = Decimal), @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime), @p14='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "productos" ("Barcode", "Cost", "CreatedAt", "Description", "InternalCode", "IsActive", "Location", "Name", "Presentation", "Price", "StockMinimum", "SupplierId", "TaxRate", "UpdatedAt", "UsesBatches")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)
+RETURNING "Id";
+2025-11-04 14:55:43.377 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 13), @p1='?' (DbType = Decimal), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?', @p7='?' (Size = 28), @p8='?' (Size = 7), @p9='?' (DbType = Decimal), @p10='?' (DbType = Decimal), @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime), @p14='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "productos" ("Barcode", "Cost", "CreatedAt", "Description", "InternalCode", "IsActive", "Location", "Name", "Presentation", "Price", "StockMinimum", "SupplierId", "TaxRate", "UpdatedAt", "UsesBatches")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)
+RETURNING "Id";
+2025-11-04 14:55:43.378 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 13), @p1='?' (DbType = Decimal), @p2='?' (DbType = DateTime), @p3='?', @p4='?', @p5='?' (DbType = Boolean), @p6='?', @p7='?' (Size = 16), @p8='?' (Size = 6), @p9='?' (DbType = Decimal), @p10='?' (DbType = Decimal), @p11='?' (DbType = Int32), @p12='?' (DbType = Decimal), @p13='?' (DbType = DateTime), @p14='?' (DbType = Boolean)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "productos" ("Barcode", "Cost", "CreatedAt", "Description", "InternalCode", "IsActive", "Location", "Name", "Presentation", "Price", "StockMinimum", "SupplierId", "TaxRate", "UpdatedAt", "UsesBatches")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)
+RETURNING "Id";
+2025-11-04 14:55:43.378 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (Size = 25), @p4='?' (Size = 8), @p5='?', @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "proveedores" ("CreatedAt", "Email", "IsActive", "Name", "Phone", "Rfc", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:55:43.379 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Boolean), @p3='?' (Size = 23), @p4='?' (Size = 8), @p5='?', @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "proveedores" ("CreatedAt", "Email", "IsActive", "Name", "Phone", "Rfc", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:55:43.379 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 5), @p4='?' (DbType = Int32), @p5='?' (Size = 2), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:55:43.380 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 6), @p4='?' (DbType = Int32), @p5='?' (Size = 2), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:55:43.380 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 6), @p4='?' (DbType = Int32), @p5='?' (Size = 2), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:55:43.381 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 10), @p4='?' (DbType = Int32), @p5='?' (Size = 2), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:55:43.381 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Int64), @p2='?' (DbType = Boolean), @p3='?' (Size = 5), @p4='?' (DbType = Int32), @p5='?' (Size = 3), @p6='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "secuencias" ("CreatedAt", "CurrentValue", "IsActive", "Name", "Padding", "Prefix", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING "Id";
+2025-11-04 14:55:43.382 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 13), @p2='?' (DbType = Boolean), @p3='?' (DbType = Boolean), @p4='?' (Size = 64), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "users" ("CreatedAt", "FullName", "IsActive", "MustChangePassword", "PasswordHash", "Role", "UpdatedAt", "Username")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:55:43.383 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 16), @p2='?' (DbType = Boolean), @p3='?' (DbType = Boolean), @p4='?' (Size = 64), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (Size = 6)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "users" ("CreatedAt", "FullName", "IsActive", "MustChangePassword", "PasswordHash", "Role", "UpdatedAt", "Username")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:55:43.383 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 23), @p2='?' (DbType = Boolean), @p3='?' (DbType = Boolean), @p4='?' (Size = 64), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (Size = 9)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "users" ("CreatedAt", "FullName", "IsActive", "MustChangePassword", "PasswordHash", "Role", "UpdatedAt", "Username")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:55:43.384 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 17), @p2='?' (DbType = Boolean), @p3='?' (DbType = Boolean), @p4='?' (Size = 64), @p5='?' (DbType = Int32), @p6='?' (DbType = DateTime), @p7='?' (Size = 6)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "users" ("CreatedAt", "FullName", "IsActive", "MustChangePassword", "PasswordHash", "Role", "UpdatedAt", "Username")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:55:43.384 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p8='?' (DbType = DateTime), @p9='?' (DbType = Date), @p10='?' (DbType = Boolean), @p11='?' (Size = 8), @p12='?' (DbType = Int32), @p13='?' (DbType = Decimal), @p14='?' (DbType = Decimal), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "lotes" ("CreatedAt", "ExpirationDate", "IsActive", "LotCode", "ProductId", "Quantity", "RemainingQuantity", "UpdatedAt")
+VALUES (@p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15)
+RETURNING "Id";
+2025-11-04 14:55:43.385 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (DbType = Date), @p2='?' (DbType = Boolean), @p3='?' (Size = 8), @p4='?' (DbType = Int32), @p5='?' (DbType = Decimal), @p6='?' (DbType = Decimal), @p7='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "lotes" ("CreatedAt", "ExpirationDate", "IsActive", "LotCode", "ProductId", "Quantity", "RemainingQuantity", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
+RETURNING "Id";
+2025-11-04 14:55:43.385 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?', @p1='?' (DbType = Date), @p2='?', @p3='?' (DbType = DateTime), @p4='?' (DbType = Int32), @p5='?', @p6='?' (DbType = Boolean), @p7='?' (Size = 11), @p8='?' (Size = 18), @p9='?' (Size = 8), @p10='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "pacientes" ("Allergies", "BirthDate", "ChronicConditions", "CreatedAt", "CustomerId", "GeneralData", "IsActive", "Name", "Notes", "Phone", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)
+RETURNING "Id";
+2025-11-04 14:55:57.496 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:04:07.582 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 15:04:07.603 -06:00 [INF] Hosting environment: Production
+2025-11-04 15:04:07.603 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 15:04:08.041 -06:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 15:04:08.171 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 15:04:08.177 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 15:04:08.178 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 15:04:08.180 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 15:04:08.181 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 15:04:08.183 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 15:04:26.109 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:04:26.258 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:04:26.265 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:05:55.882 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 15:05:55.903 -06:00 [INF] Hosting environment: Production
+2025-11-04 15:05:55.904 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 15:05:56.375 -06:00 [INF] Executed DbCommand (18ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 15:05:56.518 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 15:05:56.525 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 15:05:56.527 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 15:05:56.528 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 15:05:56.530 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 15:05:56.531 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 15:06:16.739 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:06:16.852 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:06:16.860 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:10:33.356 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 15:10:33.379 -06:00 [INF] Hosting environment: Production
+2025-11-04 15:10:33.379 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 15:10:34.105 -06:00 [INF] Executed DbCommand (19ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 15:10:34.251 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 15:10:34.258 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 15:10:34.260 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 15:10:34.262 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 15:10:34.264 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 15:10:34.266 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 15:10:51.796 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:10:51.917 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:10:51.925 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:14:47.635 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 15:14:47.661 -06:00 [INF] Hosting environment: Production
+2025-11-04 15:14:47.661 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 15:14:48.213 -06:00 [INF] Executed DbCommand (20ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 15:14:48.378 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 15:14:48.384 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 15:14:48.386 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 15:14:48.388 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 15:14:48.390 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 15:14:48.392 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 15:15:00.790 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:15:00.913 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:15:00.920 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:18:05.711 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 15:18:05.733 -06:00 [INF] Hosting environment: Production
+2025-11-04 15:18:05.733 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 15:18:06.216 -06:00 [INF] Executed DbCommand (19ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 15:18:06.359 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 15:18:06.365 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 15:18:06.367 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 15:18:06.368 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 15:18:06.370 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 15:18:06.371 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 15:18:25.165 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:18:25.283 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:18:25.290 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:18:25.330 -06:00 [ERR] Unhandled exception
+System.NotSupportedException: SQLite does not support expressions of type 'decimal' in ORDER BY clauses. Convert the values to a supported type, or use LINQ to Objects to order the results on the client side.
+   at Microsoft.EntityFrameworkCore.Sqlite.Query.Internal.SqliteQueryableMethodTranslatingExpressionVisitor.TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, Boolean ascending)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutorExpression[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass11_0`1.<ExecuteCore>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteCore[TResult](Expression query, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.ExecuteAsync[TResult](Expression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Farmacia.UI.Wpf.Services.DashboardService.GetSnapshotAsync(DateTime asOf, CancellationToken cancellationToken) in C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\Services\DashboardService.cs:line 24
+   at Farmacia.UI.Wpf.ViewModels.DashboardViewModel.LoadAsync() in C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\ViewModels\DashboardViewModel.cs:line 35
+   at Farmacia.UI.Wpf.Views.DashboardView.ExecuteLoadAsync(DashboardViewModel viewModel) in C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\Views\DashboardView.xaml.cs:line 35
+   at Farmacia.UI.Wpf.Views.DashboardView.UserControl_OnLoaded(Object sender, RoutedEventArgs e) in C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\Views\DashboardView.xaml.cs:line 27
+   at System.Threading.Tasks.Task.<>c.<ThrowAsync>b__128_0(Object state)
+   at System.Windows.Threading.ExceptionWrapper.InternalRealCall(Delegate callback, Object args, Int32 numArgs)
+   at System.Windows.Threading.ExceptionWrapper.TryCatchWhen(Object source, Delegate callback, Object args, Int32 numArgs, Delegate catchHandler)
+2025-11-04 15:18:45.127 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 15:18:45.129 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 15:18:45.850 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Id", "p"."Name", "p"."Phone", "p"."BirthDate", "p"."Notes", (
+    SELECT "c"."ConsultationDate"
+    FROM "consultas" AS "c"
+    WHERE "p"."Id" = "c"."PatientId"
+    ORDER BY "c"."ConsultationDate" DESC
+    LIMIT 1) AS "LastConsultation"
+FROM "pacientes" AS "p"
+ORDER BY "p"."Name"
+LIMIT @__p_0
+2025-11-04 15:18:46.405 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 15:18:46.970 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p1"."Id", "p1"."Barcode", "p1"."Cost", "p1"."CreatedAt", "p1"."Description", "p1"."InternalCode", "p1"."IsActive", "p1"."Location", "p1"."Name", "p1"."Presentation", "p1"."Price", "p1"."StockMinimum", "p1"."SupplierId", "p1"."TaxRate", "p1"."UpdatedAt", "p1"."UsesBatches", "p0"."Id", "p0"."CreatedAt", "p0"."Email", "p0"."IsActive", "p0"."Name", "p0"."Phone", "p0"."Rfc", "p0"."UpdatedAt", "l"."Id", "l"."CreatedAt", "l"."ExpirationDate", "l"."IsActive", "l"."LotCode", "l"."ProductId", "l"."Quantity", "l"."RemainingQuantity", "l"."UpdatedAt"
+FROM (
+    SELECT "p"."Id", "p"."Barcode", "p"."Cost", "p"."CreatedAt", "p"."Description", "p"."InternalCode", "p"."IsActive", "p"."Location", "p"."Name", "p"."Presentation", "p"."Price", "p"."StockMinimum", "p"."SupplierId", "p"."TaxRate", "p"."UpdatedAt", "p"."UsesBatches"
+    FROM "productos" AS "p"
+    ORDER BY "p"."Name"
+    LIMIT @__p_0
+) AS "p1"
+LEFT JOIN "proveedores" AS "p0" ON "p1"."SupplierId" = "p0"."Id"
+LEFT JOIN "lotes" AS "l" ON "p1"."Id" = "l"."ProductId"
+ORDER BY "p1"."Name", "p1"."Id", "p0"."Id"
+2025-11-04 15:18:47.820 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:18:47.820 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:18:47.823 -06:00 [ERR] Unhandled exception
+System.NotSupportedException: SQLite does not support expressions of type 'decimal' in ORDER BY clauses. Convert the values to a supported type, or use LINQ to Objects to order the results on the client side.
+   at Microsoft.EntityFrameworkCore.Sqlite.Query.Internal.SqliteQueryableMethodTranslatingExpressionVisitor.TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, Boolean ascending)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutorExpression[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass11_0`1.<ExecuteCore>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteCore[TResult](Expression query, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.ExecuteAsync[TResult](Expression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Farmacia.UI.Wpf.Services.DashboardService.GetSnapshotAsync(DateTime asOf, CancellationToken cancellationToken) in C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\Services\DashboardService.cs:line 24
+   at Farmacia.UI.Wpf.ViewModels.DashboardViewModel.LoadAsync() in C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\ViewModels\DashboardViewModel.cs:line 35
+   at Farmacia.UI.Wpf.Views.DashboardView.ExecuteLoadAsync(DashboardViewModel viewModel) in C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\Views\DashboardView.xaml.cs:line 35
+   at Farmacia.UI.Wpf.Views.DashboardView.UserControl_OnLoaded(Object sender, RoutedEventArgs e) in C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.UI.Wpf\Views\DashboardView.xaml.cs:line 27
+   at System.Threading.Tasks.Task.<>c.<ThrowAsync>b__128_0(Object state)
+   at System.Windows.Threading.ExceptionWrapper.InternalRealCall(Delegate callback, Object args, Int32 numArgs)
+   at System.Windows.Threading.ExceptionWrapper.TryCatchWhen(Object source, Delegate callback, Object args, Int32 numArgs, Delegate catchHandler)
+2025-11-04 15:18:50.510 -06:00 [INF] Application is shutting down...
+2025-11-04 15:20:29.102 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 15:20:29.124 -06:00 [INF] Hosting environment: Production
+2025-11-04 15:20:29.125 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 15:20:29.589 -06:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 15:20:29.730 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 15:20:29.737 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 15:20:29.739 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 15:20:29.740 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 15:20:29.742 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 15:20:29.744 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 15:20:47.620 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:20:47.735 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:20:47.743 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:20:47.776 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name", COALESCE(ef_sum("v"."Quantity"), '0.0') AS "Quantity", COALESCE(ef_sum("v"."LineTotal"), '0.0') AS "Total"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+GROUP BY "p"."Name"
+2025-11-04 15:20:47.796 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 15:20:52.763 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p1"."Id", "p1"."Barcode", "p1"."Cost", "p1"."CreatedAt", "p1"."Description", "p1"."InternalCode", "p1"."IsActive", "p1"."Location", "p1"."Name", "p1"."Presentation", "p1"."Price", "p1"."StockMinimum", "p1"."SupplierId", "p1"."TaxRate", "p1"."UpdatedAt", "p1"."UsesBatches", "p0"."Id", "p0"."CreatedAt", "p0"."Email", "p0"."IsActive", "p0"."Name", "p0"."Phone", "p0"."Rfc", "p0"."UpdatedAt", "l"."Id", "l"."CreatedAt", "l"."ExpirationDate", "l"."IsActive", "l"."LotCode", "l"."ProductId", "l"."Quantity", "l"."RemainingQuantity", "l"."UpdatedAt"
+FROM (
+    SELECT "p"."Id", "p"."Barcode", "p"."Cost", "p"."CreatedAt", "p"."Description", "p"."InternalCode", "p"."IsActive", "p"."Location", "p"."Name", "p"."Presentation", "p"."Price", "p"."StockMinimum", "p"."SupplierId", "p"."TaxRate", "p"."UpdatedAt", "p"."UsesBatches"
+    FROM "productos" AS "p"
+    ORDER BY "p"."Name"
+    LIMIT @__p_0
+) AS "p1"
+LEFT JOIN "proveedores" AS "p0" ON "p1"."SupplierId" = "p0"."Id"
+LEFT JOIN "lotes" AS "l" ON "p1"."Id" = "l"."ProductId"
+ORDER BY "p1"."Name", "p1"."Id", "p0"."Id"
+2025-11-04 15:20:53.565 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 15:20:54.639 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Id", "p"."Name", "p"."Phone", "p"."BirthDate", "p"."Notes", (
+    SELECT "c"."ConsultationDate"
+    FROM "consultas" AS "c"
+    WHERE "p"."Id" = "c"."PatientId"
+    ORDER BY "c"."ConsultationDate" DESC
+    LIMIT 1) AS "LastConsultation"
+FROM "pacientes" AS "p"
+ORDER BY "p"."Name"
+LIMIT @__p_0
+2025-11-04 15:20:55.285 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 15:20:55.287 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 15:20:56.243 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 15:20:57.650 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 15:20:58.486 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:20:58.487 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:20:58.487 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name", COALESCE(ef_sum("v"."Quantity"), '0.0') AS "Quantity", COALESCE(ef_sum("v"."LineTotal"), '0.0') AS "Total"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+GROUP BY "p"."Name"
+2025-11-04 15:20:58.488 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 15:21:06.636 -06:00 [INF] Application is shutting down...
+2025-11-04 15:40:36.176 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 15:40:36.195 -06:00 [INF] Hosting environment: Production
+2025-11-04 15:40:36.196 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 15:40:36.953 -06:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 15:40:37.092 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 15:40:37.099 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 15:40:37.100 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 15:40:37.102 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 15:40:37.104 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 15:40:37.105 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 15:41:01.249 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:41:01.455 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:41:01.463 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:41:01.500 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name", COALESCE(ef_sum("v"."Quantity"), '0.0') AS "Quantity", COALESCE(ef_sum("v"."LineTotal"), '0.0') AS "Total"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+GROUP BY "p"."Name"
+2025-11-04 15:41:01.525 -06:00 [INF] Executed DbCommand (3ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 15:41:12.292 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p1"."Id", "p1"."Barcode", "p1"."Cost", "p1"."CreatedAt", "p1"."Description", "p1"."InternalCode", "p1"."IsActive", "p1"."Location", "p1"."Name", "p1"."Presentation", "p1"."Price", "p1"."StockMinimum", "p1"."SupplierId", "p1"."TaxRate", "p1"."UpdatedAt", "p1"."UsesBatches", "p0"."Id", "p0"."CreatedAt", "p0"."Email", "p0"."IsActive", "p0"."Name", "p0"."Phone", "p0"."Rfc", "p0"."UpdatedAt", "l"."Id", "l"."CreatedAt", "l"."ExpirationDate", "l"."IsActive", "l"."LotCode", "l"."ProductId", "l"."Quantity", "l"."RemainingQuantity", "l"."UpdatedAt"
+FROM (
+    SELECT "p"."Id", "p"."Barcode", "p"."Cost", "p"."CreatedAt", "p"."Description", "p"."InternalCode", "p"."IsActive", "p"."Location", "p"."Name", "p"."Presentation", "p"."Price", "p"."StockMinimum", "p"."SupplierId", "p"."TaxRate", "p"."UpdatedAt", "p"."UsesBatches"
+    FROM "productos" AS "p"
+    ORDER BY "p"."Name"
+    LIMIT @__p_0
+) AS "p1"
+LEFT JOIN "proveedores" AS "p0" ON "p1"."SupplierId" = "p0"."Id"
+LEFT JOIN "lotes" AS "l" ON "p1"."Id" = "l"."ProductId"
+ORDER BY "p1"."Name", "p1"."Id", "p0"."Id"
+2025-11-04 15:41:19.639 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 15:41:25.115 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 15:41:26.957 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Id", "p"."Name", "p"."Phone", "p"."BirthDate", "p"."Notes", (
+    SELECT "c"."ConsultationDate"
+    FROM "consultas" AS "c"
+    WHERE "p"."Id" = "c"."PatientId"
+    ORDER BY "c"."ConsultationDate" DESC
+    LIMIT 1) AS "LastConsultation"
+FROM "pacientes" AS "p"
+ORDER BY "p"."Name"
+LIMIT @__p_0
+2025-11-04 15:41:29.657 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 15:41:29.658 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 15:41:30.884 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 15:41:31.859 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:41:31.859 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:41:31.860 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name", COALESCE(ef_sum("v"."Quantity"), '0.0') AS "Quantity", COALESCE(ef_sum("v"."LineTotal"), '0.0') AS "Total"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+GROUP BY "p"."Name"
+2025-11-04 15:41:31.861 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 15:41:46.293 -06:00 [INF] Application is shutting down...
+2025-11-04 15:48:10.287 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 15:48:10.309 -06:00 [INF] Hosting environment: Production
+2025-11-04 15:48:10.309 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 15:48:10.771 -06:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 15:48:10.908 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 15:48:10.915 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 15:48:10.916 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 15:48:10.918 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 15:48:10.920 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 15:48:10.922 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 15:48:23.818 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 15:48:23.944 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:48:23.951 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 15:48:23.982 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name", COALESCE(ef_sum("v"."Quantity"), '0.0') AS "Quantity", COALESCE(ef_sum("v"."LineTotal"), '0.0') AS "Total"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+GROUP BY "p"."Name"
+2025-11-04 15:48:23.999 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 15:48:27.299 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p1"."Id", "p1"."Barcode", "p1"."Cost", "p1"."CreatedAt", "p1"."Description", "p1"."InternalCode", "p1"."IsActive", "p1"."Location", "p1"."Name", "p1"."Presentation", "p1"."Price", "p1"."StockMinimum", "p1"."SupplierId", "p1"."TaxRate", "p1"."UpdatedAt", "p1"."UsesBatches", "p0"."Id", "p0"."CreatedAt", "p0"."Email", "p0"."IsActive", "p0"."Name", "p0"."Phone", "p0"."Rfc", "p0"."UpdatedAt", "l"."Id", "l"."CreatedAt", "l"."ExpirationDate", "l"."IsActive", "l"."LotCode", "l"."ProductId", "l"."Quantity", "l"."RemainingQuantity", "l"."UpdatedAt"
+FROM (
+    SELECT "p"."Id", "p"."Barcode", "p"."Cost", "p"."CreatedAt", "p"."Description", "p"."InternalCode", "p"."IsActive", "p"."Location", "p"."Name", "p"."Presentation", "p"."Price", "p"."StockMinimum", "p"."SupplierId", "p"."TaxRate", "p"."UpdatedAt", "p"."UsesBatches"
+    FROM "productos" AS "p"
+    ORDER BY "p"."Name"
+    LIMIT @__p_0
+) AS "p1"
+LEFT JOIN "proveedores" AS "p0" ON "p1"."SupplierId" = "p0"."Id"
+LEFT JOIN "lotes" AS "l" ON "p1"."Id" = "l"."ProductId"
+ORDER BY "p1"."Name", "p1"."Id", "p0"."Id"
+2025-11-04 15:48:28.648 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 15:48:29.421 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Id", "p"."Name", "p"."Phone", "p"."BirthDate", "p"."Notes", (
+    SELECT "c"."ConsultationDate"
+    FROM "consultas" AS "c"
+    WHERE "p"."Id" = "c"."PatientId"
+    ORDER BY "c"."ConsultationDate" DESC
+    LIMIT 1) AS "LastConsultation"
+FROM "pacientes" AS "p"
+ORDER BY "p"."Name"
+LIMIT @__p_0
+2025-11-04 15:48:30.124 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 15:48:30.126 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 15:48:30.837 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 15:48:33.239 -06:00 [INF] Application is shutting down...
+2025-11-04 16:11:11.317 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 16:11:11.353 -06:00 [INF] Hosting environment: Production
+2025-11-04 16:11:11.353 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 16:11:11.860 -06:00 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 16:11:12.031 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 16:11:12.040 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 16:11:12.042 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 16:11:12.044 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 16:11:12.046 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 16:11:12.048 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 16:11:21.872 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 16:11:21.995 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:11:22.003 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:11:22.037 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name", COALESCE(ef_sum("v"."Quantity"), '0.0') AS "Quantity", COALESCE(ef_sum("v"."LineTotal"), '0.0') AS "Total"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+GROUP BY "p"."Name"
+2025-11-04 16:11:22.055 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 16:11:25.685 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p1"."Id", "p1"."Barcode", "p1"."Cost", "p1"."CreatedAt", "p1"."Description", "p1"."InternalCode", "p1"."IsActive", "p1"."Location", "p1"."Name", "p1"."Presentation", "p1"."Price", "p1"."StockMinimum", "p1"."SupplierId", "p1"."TaxRate", "p1"."UpdatedAt", "p1"."UsesBatches", "p0"."Id", "p0"."CreatedAt", "p0"."Email", "p0"."IsActive", "p0"."Name", "p0"."Phone", "p0"."Rfc", "p0"."UpdatedAt", "l"."Id", "l"."CreatedAt", "l"."ExpirationDate", "l"."IsActive", "l"."LotCode", "l"."ProductId", "l"."Quantity", "l"."RemainingQuantity", "l"."UpdatedAt"
+FROM (
+    SELECT "p"."Id", "p"."Barcode", "p"."Cost", "p"."CreatedAt", "p"."Description", "p"."InternalCode", "p"."IsActive", "p"."Location", "p"."Name", "p"."Presentation", "p"."Price", "p"."StockMinimum", "p"."SupplierId", "p"."TaxRate", "p"."UpdatedAt", "p"."UsesBatches"
+    FROM "productos" AS "p"
+    ORDER BY "p"."Name"
+    LIMIT @__p_0
+) AS "p1"
+LEFT JOIN "proveedores" AS "p0" ON "p1"."SupplierId" = "p0"."Id"
+LEFT JOIN "lotes" AS "l" ON "p1"."Id" = "l"."ProductId"
+ORDER BY "p1"."Name", "p1"."Id", "p0"."Id"
+2025-11-04 16:11:30.480 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 16:11:32.024 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Id", "p"."Name", "p"."Phone", "p"."BirthDate", "p"."Notes", (
+    SELECT "c"."ConsultationDate"
+    FROM "consultas" AS "c"
+    WHERE "p"."Id" = "c"."PatientId"
+    ORDER BY "c"."ConsultationDate" DESC
+    LIMIT 1) AS "LastConsultation"
+FROM "pacientes" AS "p"
+ORDER BY "p"."Name"
+LIMIT @__p_0
+2025-11-04 16:11:36.989 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:11:36.991 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:11:37.716 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 16:11:38.469 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:11:38.469 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:11:38.470 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name", COALESCE(ef_sum("v"."Quantity"), '0.0') AS "Quantity", COALESCE(ef_sum("v"."LineTotal"), '0.0') AS "Total"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+GROUP BY "p"."Name"
+2025-11-04 16:11:38.471 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 16:11:47.301 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p1"."Id", "p1"."Barcode", "p1"."Cost", "p1"."CreatedAt", "p1"."Description", "p1"."InternalCode", "p1"."IsActive", "p1"."Location", "p1"."Name", "p1"."Presentation", "p1"."Price", "p1"."StockMinimum", "p1"."SupplierId", "p1"."TaxRate", "p1"."UpdatedAt", "p1"."UsesBatches", "p0"."Id", "p0"."CreatedAt", "p0"."Email", "p0"."IsActive", "p0"."Name", "p0"."Phone", "p0"."Rfc", "p0"."UpdatedAt", "l"."Id", "l"."CreatedAt", "l"."ExpirationDate", "l"."IsActive", "l"."LotCode", "l"."ProductId", "l"."Quantity", "l"."RemainingQuantity", "l"."UpdatedAt"
+FROM (
+    SELECT "p"."Id", "p"."Barcode", "p"."Cost", "p"."CreatedAt", "p"."Description", "p"."InternalCode", "p"."IsActive", "p"."Location", "p"."Name", "p"."Presentation", "p"."Price", "p"."StockMinimum", "p"."SupplierId", "p"."TaxRate", "p"."UpdatedAt", "p"."UsesBatches"
+    FROM "productos" AS "p"
+    ORDER BY "p"."Name"
+    LIMIT @__p_0
+) AS "p1"
+LEFT JOIN "proveedores" AS "p0" ON "p1"."SupplierId" = "p0"."Id"
+LEFT JOIN "lotes" AS "l" ON "p1"."Id" = "l"."ProductId"
+ORDER BY "p1"."Name", "p1"."Id", "p0"."Id"
+2025-11-04 16:11:48.035 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 16:11:53.332 -06:00 [INF] Application is shutting down...
+2025-11-04 16:24:26.730 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 16:24:26.752 -06:00 [INF] Hosting environment: Production
+2025-11-04 16:24:26.753 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 16:24:27.212 -06:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 16:24:27.353 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 16:24:27.359 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 16:24:27.361 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 16:24:27.362 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 16:24:27.364 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 16:24:27.366 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 16:24:36.497 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 16:24:36.615 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:24:36.623 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:24:36.640 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "v"."Quantity", "v"."LineTotal"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+2025-11-04 16:24:36.664 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 16:24:37.978 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:24:37.980 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:24:39.025 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 16:24:40.019 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:24:40.020 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:24:40.580 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 16:24:41.065 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:24:41.065 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:24:43.799 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Id", "p"."Name", "p"."Phone", "p"."BirthDate", "p"."Notes", (
+    SELECT "c"."ConsultationDate"
+    FROM "consultas" AS "c"
+    WHERE "p"."Id" = "c"."PatientId"
+    ORDER BY "c"."ConsultationDate" DESC
+    LIMIT 1) AS "LastConsultation"
+FROM "pacientes" AS "p"
+ORDER BY "p"."Name"
+LIMIT @__p_0
+2025-11-04 16:24:44.542 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:24:44.542 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:25:03.642 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 16:25:16.625 -06:00 [INF] Application is shutting down...
+2025-11-04 16:39:09.158 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-04 16:39:09.197 -06:00 [INF] Hosting environment: Production
+2025-11-04 16:39:09.198 -06:00 [INF] Content root path: C:\Users\carlo\OneDrive\Documentos\farmacia
+2025-11-04 16:39:09.758 -06:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-11-04 16:39:09.905 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "users" AS "u")
+2025-11-04 16:39:09.910 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "proveedores" AS "p")
+2025-11-04 16:39:09.912 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "productos" AS "p")
+2025-11-04 16:39:09.914 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "pacientes" AS "p")
+2025-11-04 16:39:09.915 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "secuencias" AS "s")
+2025-11-04 16:39:09.917 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "configuracion" AS "c")
+2025-11-04 16:39:20.040 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalized_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM "users" AS "u"
+WHERE lower("u"."Username") = @__normalized_0 AND "u"."IsActive"
+LIMIT 1
+2025-11-04 16:39:20.154 -06:00 [INF] Executed DbCommand (1ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:20.160 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:20.176 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "v"."Quantity", "v"."LineTotal"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:20.197 -06:00 [INF] Executed DbCommand (2ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 16:39:21.593 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:39:21.595 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__start_0 AND "v"."SaleDate" <= @__end_1
+2025-11-04 16:39:22.463 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."CreatedAt", "c"."IsActive", "c"."Key", "c"."UpdatedAt", "c"."Value"
+FROM "configuracion" AS "c"
+WHERE "c"."Key" IN ('General.StoreName', 'General.StoreAddress', 'General.StorePhone', 'General.TicketFooter')
+2025-11-04 16:39:24.506 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Id", "p"."Name", "p"."Phone", "p"."BirthDate", "p"."Notes", (
+    SELECT "c"."ConsultationDate"
+    FROM "consultas" AS "c"
+    WHERE "p"."Id" = "c"."PatientId"
+    ORDER BY "c"."ConsultationDate" DESC
+    LIMIT 1) AS "LastConsultation"
+FROM "pacientes" AS "p"
+ORDER BY "p"."Name"
+LIMIT @__p_0
+2025-11-04 16:39:25.149 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 16:39:25.676 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p1"."Id", "p1"."Barcode", "p1"."Cost", "p1"."CreatedAt", "p1"."Description", "p1"."InternalCode", "p1"."IsActive", "p1"."Location", "p1"."Name", "p1"."Presentation", "p1"."Price", "p1"."StockMinimum", "p1"."SupplierId", "p1"."TaxRate", "p1"."UpdatedAt", "p1"."UsesBatches", "p0"."Id", "p0"."CreatedAt", "p0"."Email", "p0"."IsActive", "p0"."Name", "p0"."Phone", "p0"."Rfc", "p0"."UpdatedAt", "l"."Id", "l"."CreatedAt", "l"."ExpirationDate", "l"."IsActive", "l"."LotCode", "l"."ProductId", "l"."Quantity", "l"."RemainingQuantity", "l"."UpdatedAt"
+FROM (
+    SELECT "p"."Id", "p"."Barcode", "p"."Cost", "p"."CreatedAt", "p"."Description", "p"."InternalCode", "p"."IsActive", "p"."Location", "p"."Name", "p"."Presentation", "p"."Price", "p"."StockMinimum", "p"."SupplierId", "p"."TaxRate", "p"."UpdatedAt", "p"."UsesBatches"
+    FROM "productos" AS "p"
+    ORDER BY "p"."Name"
+    LIMIT @__p_0
+) AS "p1"
+LEFT JOIN "proveedores" AS "p0" ON "p1"."SupplierId" = "p0"."Id"
+LEFT JOIN "lotes" AS "l" ON "p1"."Id" = "l"."ProductId"
+ORDER BY "p1"."Name", "p1"."Id", "p0"."Id"
+2025-11-04 16:39:26.804 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:26.804 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:26.805 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "v"."Quantity", "v"."LineTotal"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:26.806 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 16:39:28.215 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__start_0='?' (DbType = DateTime), @__end_1='?' (DbType = DateTime), @__p_2='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c0"."Id", "c0"."ConsultationId", "c0"."CreatedAt", "c0"."DoctorId", "c0"."Duration", "c0"."IsActive", "c0"."Notes", "c0"."PatientId", "c0"."Reason", "c0"."ScheduledAt", "c0"."Status", "c0"."UpdatedAt", "p"."Id", "p"."Allergies", "p"."BirthDate", "p"."ChronicConditions", "p"."CreatedAt", "p"."CustomerId", "p"."GeneralData", "p"."IsActive", "p"."Name", "p"."Notes", "p"."Phone", "p"."UpdatedAt", "u"."Id", "u"."CreatedAt", "u"."FullName", "u"."IsActive", "u"."MustChangePassword", "u"."PasswordHash", "u"."Role", "u"."UpdatedAt", "u"."Username"
+FROM (
+    SELECT "c"."Id", "c"."ConsultationId", "c"."CreatedAt", "c"."DoctorId", "c"."Duration", "c"."IsActive", "c"."Notes", "c"."PatientId", "c"."Reason", "c"."ScheduledAt", "c"."Status", "c"."UpdatedAt"
+    FROM "citas" AS "c"
+    WHERE "c"."ScheduledAt" >= @__start_0 AND "c"."ScheduledAt" <= @__end_1 AND "c"."Status" IN (1, 2, 3)
+    ORDER BY "c"."ScheduledAt"
+    LIMIT @__p_2
+) AS "c0"
+INNER JOIN "pacientes" AS "p" ON "c0"."PatientId" = "p"."Id"
+INNER JOIN "users" AS "u" ON "c0"."DoctorId" = "u"."Id"
+ORDER BY "c0"."ScheduledAt"
+2025-11-04 16:39:34.979 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p1"."Id", "p1"."Barcode", "p1"."Cost", "p1"."CreatedAt", "p1"."Description", "p1"."InternalCode", "p1"."IsActive", "p1"."Location", "p1"."Name", "p1"."Presentation", "p1"."Price", "p1"."StockMinimum", "p1"."SupplierId", "p1"."TaxRate", "p1"."UpdatedAt", "p1"."UsesBatches", "p0"."Id", "p0"."CreatedAt", "p0"."Email", "p0"."IsActive", "p0"."Name", "p0"."Phone", "p0"."Rfc", "p0"."UpdatedAt", "l"."Id", "l"."CreatedAt", "l"."ExpirationDate", "l"."IsActive", "l"."LotCode", "l"."ProductId", "l"."Quantity", "l"."RemainingQuantity", "l"."UpdatedAt"
+FROM (
+    SELECT "p"."Id", "p"."Barcode", "p"."Cost", "p"."CreatedAt", "p"."Description", "p"."InternalCode", "p"."IsActive", "p"."Location", "p"."Name", "p"."Presentation", "p"."Price", "p"."StockMinimum", "p"."SupplierId", "p"."TaxRate", "p"."UpdatedAt", "p"."UsesBatches"
+    FROM "productos" AS "p"
+    ORDER BY "p"."Name"
+    LIMIT @__p_0
+) AS "p1"
+LEFT JOIN "proveedores" AS "p0" ON "p1"."SupplierId" = "p0"."Id"
+LEFT JOIN "lotes" AS "l" ON "p1"."Id" = "l"."ProductId"
+ORDER BY "p1"."Name", "p1"."Id", "p0"."Id"
+2025-11-04 16:39:53.409 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COALESCE(ef_sum("v"."Total"), '0.0')
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:53.410 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "ventas" AS "v"
+WHERE "v"."SaleDate" >= @__startOfDay_0 AND "v"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:53.410 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__startOfDay_0='?' (DbType = DateTime), @__endOfDay_1='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "v"."Quantity", "v"."LineTotal"
+FROM "venta_detalle" AS "v"
+INNER JOIN "ventas" AS "v0" ON "v"."SaleId" = "v0"."Id"
+INNER JOIN "productos" AS "p" ON "v"."ProductId" = "p"."Id"
+WHERE "v0"."SaleDate" >= @__startOfDay_0 AND "v0"."SaleDate" < @__endOfDay_1
+2025-11-04 16:39:53.410 -06:00 [INF] Executed DbCommand (0ms) [Parameters=[@__FromDateTime_0='?' (DbType = Date), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."Name" AS "ProductName", "l0"."LotCode", "l0"."ExpirationDate"
+FROM (
+    SELECT "l"."ExpirationDate", "l"."LotCode", "l"."ProductId"
+    FROM "lotes" AS "l"
+    WHERE "l"."ExpirationDate" IS NOT NULL AND ef_compare("l"."RemainingQuantity", '0.0') > 0 AND "l"."ExpirationDate" <= @__FromDateTime_0
+    ORDER BY "l"."ExpirationDate"
+    LIMIT @__p_1
+) AS "l0"
+INNER JOIN "productos" AS "p" ON "l0"."ProductId" = "p"."Id"
+ORDER BY "l0"."ExpirationDate"
+2025-11-04 16:40:25.281 -06:00 [INF] Application is shutting down...

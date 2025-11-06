@@ -1,0 +1,17 @@
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.Data.csproj.AssemblyReference.cache
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.Data.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.Data.AssemblyInfoInputs.cache
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.Data.AssemblyInfo.cs
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.Data.csproj.CoreCompileInputs.cache
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\bin\Debug\net8.0\Farmacia.Data.deps.json
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\bin\Debug\net8.0\Farmacia.Data.runtimeconfig.json
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\bin\Debug\net8.0\Farmacia.Data.dll
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\bin\Debug\net8.0\Farmacia.Data.pdb
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\bin\Debug\net8.0\Farmacia.Domain.dll
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\bin\Debug\net8.0\Farmacia.Domain.pdb
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.D971670B.Up2Date
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.Data.dll
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\refint\Farmacia.Data.dll
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.Data.pdb
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\Farmacia.Data.genruntimeconfig.cache
+C:\Users\carlo\OneDrive\Documentos\farmacia\Farmacia.Data\obj\Debug\net8.0\ref\Farmacia.Data.dll
