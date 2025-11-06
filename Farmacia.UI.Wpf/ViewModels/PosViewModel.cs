@@ -86,9 +86,15 @@ public partial class PosViewModel : ViewModelBase
                 return;
             }
 
-            await AddOrUpdateCartItemAsync(product, 1);
+            var (added, message) = await AddOrUpdateCartItemAsync(product, 1);
+            if (!added)
+            {
+                StatusMessage = message ?? "No fue posible agregar el producto.";
+                return;
+            }
+
             SearchQuery = string.Empty;
-            StatusMessage = $"Agregado: {product.Name}";
+            StatusMessage = message ?? $"Agregado: {product.Name}";
         }
         finally
         {
@@ -181,15 +187,18 @@ public partial class PosViewModel : ViewModelBase
             {
                 var lineSubtotal = (item.UnitPrice - item.Discount) * item.Quantity;
                 var lineTax = lineSubtotal * item.TaxRate;
-                sale.Lines.Add(new SaleLine
+                var saleLine = new SaleLine
                 {
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
                     Discount = item.Discount,
                     TaxRate = item.TaxRate,
-                    LineTotal = lineSubtotal + lineTax
-                });
+                    LineTotal = lineSubtotal + lineTax,
+                    Sale = sale
+                };
+
+                sale.Lines.Add(saleLine);
             }
 
             _context.Sales.Add(sale);
@@ -213,7 +222,7 @@ public partial class PosViewModel : ViewModelBase
         }
     }
 
-    private async Task AddOrUpdateCartItemAsync(Product product, decimal quantity)
+    private async Task<(bool Added, string? Message)> AddOrUpdateCartItemAsync(Product product, decimal quantity)
     {
         var existing = CartItems.FirstOrDefault(c => c.ProductId == product.Id);
         if (existing is null)
@@ -224,26 +233,65 @@ public partial class PosViewModel : ViewModelBase
 
             if (available <= 0)
             {
-                StatusMessage = "Producto sin existencia.";
-                return;
+                return (false, "Producto sin existencia.");
+            }
+
+            var quantityToAdd = Math.Min(quantity, available);
+            if (quantityToAdd < quantity)
+            {
+                CartItems.Add(new CartItemModel
+                {
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    Quantity = quantityToAdd,
+                    UnitPrice = product.Price,
+                    TaxRate = product.TaxRate,
+                    Discount = 0
+                });
+                RecalculateTotals();
+                return (true, "Se agregó la cantidad disponible restante.");
             }
 
             CartItems.Add(new CartItemModel
             {
                 ProductId = product.Id,
                 ProductName = product.Name,
-                Quantity = Math.Min(quantity, available),
+                Quantity = quantityToAdd,
                 UnitPrice = product.Price,
                 TaxRate = product.TaxRate,
                 Discount = 0
             });
+            RecalculateTotals();
+            return (true, null);
         }
         else
         {
-            existing.Quantity += quantity;
+            if (product.UsesBatches)
+            {
+                var available = await _context.ProductLots.AsNoTracking().Where(l => l.ProductId == product.Id).SumAsync(l => (decimal?)l.RemainingQuantity) ?? 0;
+                var remainingCapacity = Math.Max(0, available - existing.Quantity);
+                if (remainingCapacity <= 0)
+                {
+                    return (false, "Producto sin existencia suficiente.");
+                }
+
+                var quantityToAdd = Math.Min(quantity, remainingCapacity);
+                existing.Quantity += quantityToAdd;
+
+                if (quantityToAdd < quantity)
+                {
+                    RecalculateTotals();
+                    return (true, "Se agregó la cantidad disponible restante.");
+                }
+            }
+            else
+            {
+                existing.Quantity += quantity;
+            }
         }
 
         RecalculateTotals();
+        return (true, null);
     }
 
     private void RecalculateTotals()

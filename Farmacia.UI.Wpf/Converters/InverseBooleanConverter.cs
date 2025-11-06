@@ -13,7 +13,7 @@ public class InverseBooleanConverter : IValueConverter
             return !flag;
         }
 
-    return System.Windows.Data.Binding.DoNothing;
+        return System.Windows.Data.Binding.DoNothing;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -23,6 +23,6 @@ public class InverseBooleanConverter : IValueConverter
             return !flag;
         }
 
-    return System.Windows.Data.Binding.DoNothing;
+        return System.Windows.Data.Binding.DoNothing;
     }
 }

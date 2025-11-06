@@ -20,6 +20,6 @@ public class DateOnlyToDateTimeConverter : IValueConverter
             return DateOnly.FromDateTime(dateTime);
         }
 
-    return System.Windows.Data.Binding.DoNothing;
+        return System.Windows.Data.Binding.DoNothing;
     }
 }

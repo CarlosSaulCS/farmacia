@@ -19,7 +19,7 @@ public class InventoryService : IInventoryService
     {
         foreach (var line in purchase.Lines)
         {
-            await ApplyPurchaseLineAsync(line, cancellationToken);
+            await ApplyPurchaseLineAsync(purchase, line, cancellationToken);
         }
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -29,7 +29,7 @@ public class InventoryService : IInventoryService
     {
         foreach (var line in sale.Lines)
         {
-            await ApplySaleLineAsync(line, cancellationToken);
+            await ApplySaleLineAsync(sale, line, cancellationToken);
         }
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -89,7 +89,7 @@ public class InventoryService : IInventoryService
             .ToListAsync(cancellationToken);
     }
 
-    private async Task ApplyPurchaseLineAsync(PurchaseLine line, CancellationToken cancellationToken)
+    private async Task ApplyPurchaseLineAsync(Purchase purchase, PurchaseLine line, CancellationToken cancellationToken)
     {
         ProductLot? lot = null;
         if (!string.IsNullOrWhiteSpace(line.LotCode))
@@ -120,12 +120,12 @@ public class InventoryService : IInventoryService
             ProductLot = lot,
             MovementType = InventoryMovementType.Entrada,
             Quantity = line.Quantity,
-            Reason = $"Compra {line.Purchase.Folio}",
-            UserId = line.Purchase.UserId
+            Reason = $"Compra {purchase.Folio}",
+            UserId = purchase.UserId
         }, cancellationToken);
     }
 
-    private async Task ApplySaleLineAsync(SaleLine line, CancellationToken cancellationToken)
+    private async Task ApplySaleLineAsync(Sale sale, SaleLine line, CancellationToken cancellationToken)
     {
         var product = await _context.Products.Include(p => p.Lots).FirstAsync(p => p.Id == line.ProductId, cancellationToken);
 
@@ -154,8 +154,8 @@ public class InventoryService : IInventoryService
                 ProductLotId = lot.Id,
                 MovementType = InventoryMovementType.Salida,
                 Quantity = consume,
-                Reason = $"Venta {line.Sale.Folio}",
-                UserId = line.Sale.UserId
+                Reason = $"Venta {sale.Folio}",
+                UserId = sale.UserId
             }, cancellationToken);
         }
 
@@ -171,8 +171,8 @@ public class InventoryService : IInventoryService
                 ProductId = product.Id,
                 MovementType = InventoryMovementType.Salida,
                 Quantity = line.Quantity,
-                Reason = $"Venta {line.Sale.Folio}",
-                UserId = line.Sale.UserId
+                Reason = $"Venta {sale.Folio}",
+                UserId = sale.UserId
             }, cancellationToken);
         }
     }
