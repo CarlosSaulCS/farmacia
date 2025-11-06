@@ -13,6 +13,7 @@ public class ConfigurationService : IConfigurationService
     private const string StoreAddressKey = "General.StoreAddress";
     private const string StorePhoneKey = "General.StorePhone";
     private const string TicketFooterKey = "General.TicketFooter";
+    private const string LastBackupPathKey = "Maintenance.LastBackupPath";
 
     private readonly PharmacyDbContext _context;
 
@@ -45,6 +46,30 @@ public class ConfigurationService : IConfigurationService
         await UpsertAsync(StoreAddressKey, settings.StoreAddress, cancellationToken);
         await UpsertAsync(StorePhoneKey, settings.PhoneNumber, cancellationToken);
         await UpsertAsync(TicketFooterKey, settings.TicketFooter, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<string?> GetLastBackupPathAsync(CancellationToken cancellationToken = default)
+    {
+        var entry = await _context.AppConfigurations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Key == LastBackupPathKey, cancellationToken);
+
+        return entry?.Value;
+    }
+
+    public async Task SetLastBackupPathAsync(string path, CancellationToken cancellationToken = default)
+    {
+        var entry = await _context.AppConfigurations.FirstOrDefaultAsync(c => c.Key == LastBackupPathKey, cancellationToken);
+        if (entry is null)
+        {
+            _context.AppConfigurations.Add(new AppConfiguration { Key = LastBackupPathKey, Value = path });
+        }
+        else
+        {
+            entry.Value = path;
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
     }
 

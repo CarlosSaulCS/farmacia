@@ -1,5 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Threading;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Farmacia.Data.Contexts;
@@ -18,9 +20,13 @@ public partial class PosViewModel : ViewModelBase
     private readonly ISequenceService _sequenceService;
     private readonly IInventoryService _inventoryService;
     private readonly UserSessionService _sessionService;
+    private CancellationTokenSource? _suggestionsCts;
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
+
+    [ObservableProperty]
+    private bool _hasSuggestions;
 
     [ObservableProperty]
     private decimal _subtotal;
@@ -50,6 +56,7 @@ public partial class PosViewModel : ViewModelBase
     private PaymentMethod _selectedPaymentMethod = PaymentMethod.Efectivo;
 
     public ObservableCollection<CartItemModel> CartItems { get; } = new();
+    public ObservableCollection<ProductSuggestionModel> ProductSuggestions { get; } = new();
 
     public IReadOnlyList<PaymentMethod> PaymentMethods { get; } = Enum.GetValues<PaymentMethod>();
 
@@ -59,6 +66,11 @@ public partial class PosViewModel : ViewModelBase
         _sequenceService = sequenceService;
         _inventoryService = inventoryService;
         _sessionService = sessionService;
+    }
+
+    partial void OnSearchQueryChanged(string value)
+    {
+        _ = LoadSuggestionsAsync(value);
     }
 
     [RelayCommand]
@@ -86,15 +98,38 @@ public partial class PosViewModel : ViewModelBase
                 return;
             }
 
-            var (added, message) = await AddOrUpdateCartItemAsync(product, 1);
-            if (!added)
+            await HandleProductSelectionAsync(product);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SelectSuggestionAsync(ProductSuggestionModel? suggestion)
+    {
+        if (suggestion is null)
+        {
+            return;
+        }
+
+        try
+        {
+            IsBusy = true;
+
+            var product = await _context.Products
+                .Include(p => p.Lots)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == suggestion.Id);
+
+            if (product is null)
             {
-                StatusMessage = message ?? "No fue posible agregar el producto.";
+                StatusMessage = "Producto no encontrado.";
                 return;
             }
 
-            SearchQuery = string.Empty;
-            StatusMessage = message ?? $"Agregado: {product.Name}";
+            await HandleProductSelectionAsync(product);
         }
         finally
         {
@@ -309,5 +344,81 @@ public partial class PosViewModel : ViewModelBase
         Subtotal = Math.Round(subtotal, 2);
         TaxTotal = Math.Round(tax, 2);
         Total = Subtotal + TaxTotal;
+    }
+
+    private void ClearSuggestions()
+    {
+        ProductSuggestions.Clear();
+        HasSuggestions = false;
+    }
+
+    private async Task LoadSuggestionsAsync(string? value)
+    {
+        _suggestionsCts?.Cancel();
+        _suggestionsCts?.Dispose();
+
+        if (string.IsNullOrWhiteSpace(value) || value.Length < 2)
+        {
+            ClearSuggestions();
+            return;
+        }
+
+        var cts = new CancellationTokenSource();
+        _suggestionsCts = cts;
+        var token = cts.Token;
+
+        try
+        {
+            await Task.Delay(150, token);
+
+            var term = value.Trim();
+
+            var suggestions = await _context.Products
+                .AsNoTracking()
+                .Where(p => (p.Barcode != null && EF.Functions.Like(p.Barcode, $"{term}%"))
+                            || (p.InternalCode != null && EF.Functions.Like(p.InternalCode, $"{term}%"))
+                            || EF.Functions.Like(p.Name, $"%{term}%"))
+                .OrderBy(p => p.Name)
+                .Take(10)
+                .Select(p => new ProductSuggestionModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Barcode = p.Barcode,
+                    InternalCode = p.InternalCode
+                })
+                .ToListAsync(token);
+
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            ProductSuggestions.Clear();
+            foreach (var suggestion in suggestions)
+            {
+                ProductSuggestions.Add(suggestion);
+            }
+
+            HasSuggestions = ProductSuggestions.Count > 0;
+        }
+        catch (OperationCanceledException)
+        {
+            // Ignored: a new query was initiated.
+        }
+    }
+
+    private async Task HandleProductSelectionAsync(Product product)
+    {
+        var (added, message) = await AddOrUpdateCartItemAsync(product, 1);
+        if (!added)
+        {
+            StatusMessage = message ?? "No fue posible agregar el producto.";
+            return;
+        }
+
+        SearchQuery = string.Empty;
+        ClearSuggestions();
+        StatusMessage = message ?? $"Agregado: {product.Name}";
     }
 }

@@ -48,7 +48,25 @@ Archivos clave:
 ## 5. Consideraciones de base de datos
 
 - El proyecto usa SQLite. Si deseas compartir datos comunes, distribuye un archivo `Farmacia.db` inicial dentro del paquete. Cada instalación puede apuntar a su propia copia local para trabajo independiente.
-- Para respaldos, basta con copiar el archivo `.db`. Incluye procedimientos de respaldo/restauración en el manual de usuario si es necesario.
+- La utilidad `Farmacia.Tools` incluida en la solución facilita revisar el estado de la base y automatizar respaldos/restauraciones locales:
+
+	```powershell
+	# Inicializa o vuelve a generar datos de ejemplo antes de operar
+	dotnet run --project .\Farmacia.Tools\Farmacia.Tools.csproj -- init
+
+	# Listar tablas, conteos e integridad
+	dotnet run --project .\Farmacia.Tools\Farmacia.Tools.csproj -- inspect
+
+	# Crear un respaldo en la carpeta indicada
+	dotnet run --project .\Farmacia.Tools\Farmacia.Tools.csproj -- backup .\backups
+
+	# Restaurar desde un respaldo previo
+	dotnet run --project .\Farmacia.Tools\Farmacia.Tools.csproj -- restore .\backups\farmacia-backup-YYYYMMDDHHMMSS.db
+	```
+
+	La herramienta usa el servicio `DatabaseMaintenanceService`, de modo que los mismos pasos pueden exponerse dentro de la aplicación si se requiere en el futuro.
+- Para respaldos manuales también basta con copiar el archivo `.db`. Incluye procedimientos de respaldo/restauración en el manual de usuario si es necesario.
+- Existe un flujo automatizado en GitHub Actions (`.github/workflows/nightly-backup.yml`) que ejecuta diariamente el comando de respaldo y publica el archivo generado como artefacto con retención de siete días. Puedes dispararlo manualmente con *Run workflow* desde la pestaña **Actions** cuando necesites un respaldo inmediato.
 
 ## 6. Actualizaciones futuras
 

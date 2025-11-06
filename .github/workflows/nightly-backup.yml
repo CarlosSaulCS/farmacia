@@ -1,0 +1,38 @@
+name: Nightly Database Backup
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --configuration Release
+
+      - name: Initialize database
+        run: dotnet run --configuration Release --project .\Farmacia.Tools\Farmacia.Tools.csproj -- init
+
+      - name: Create backup
+        run: dotnet run --configuration Release --project .\Farmacia.Tools\Farmacia.Tools.csproj -- backup .\artifacts\backups
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: farmacia-db-backup
+          path: artifacts/backups
+          retention-days: 7

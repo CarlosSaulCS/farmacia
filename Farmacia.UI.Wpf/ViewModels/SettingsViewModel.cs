@@ -102,6 +102,7 @@ public partial class SettingsViewModel : ViewModelBase
 		{
 			IsBusy = true;
 			var path = await _maintenanceService.CreateBackupAsync(dialog.SelectedPath);
+			await _configurationService.SetLastBackupPathAsync(path);
 			LastBackupPath = path;
 			StatusMessage = $"Respaldo creado: {path}";
 		}
@@ -133,6 +134,8 @@ public partial class SettingsViewModel : ViewModelBase
 		{
 			IsBusy = true;
 			await _maintenanceService.RestoreBackupAsync(dialog.FileName);
+			await _configurationService.SetLastBackupPathAsync(dialog.FileName);
+			LastBackupPath = dialog.FileName;
 			StatusMessage = "Base de datos restaurada correctamente.";
 		}
 		catch (Exception ex)
@@ -154,6 +157,7 @@ public partial class SettingsViewModel : ViewModelBase
 			_isApplyingSettings = true;
 
 			var settings = await _configurationService.GetGeneralSettingsAsync();
+			LastBackupPath = await _configurationService.GetLastBackupPathAsync();
 
 			StoreName = settings.StoreName ?? string.Empty;
 			StoreAddress = settings.StoreAddress ?? string.Empty;

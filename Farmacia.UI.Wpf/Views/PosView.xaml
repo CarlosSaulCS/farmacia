@@ -115,6 +115,36 @@
             <GradientStop Color="#F1F5FF" Offset="0" />
             <GradientStop Color="#E3ECFF" Offset="1" />
         </LinearGradientBrush>
+
+        <Style x:Key="SuggestionSecondaryTextStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionStyle}">
+            <Setter Property="Foreground" Value="#64748B" />
+            <Setter Property="Margin" Value="0,2,0,0" />
+            <Style.Triggers>
+                <Trigger Property="Text" Value="">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+                <Trigger Property="Text" Value=" ">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+                <Trigger Property="Text" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SuggestionListBoxItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <EventSetter Event="MouseLeftButtonUp" Handler="SuggestionItem_OnClick" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F1F5F9" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid Margin="24,0,24,32">
@@ -230,6 +260,29 @@
                             <TextBlock Text="Buscar o escanear" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource NeutralDarkBrush}" />
                             <TextBlock Text="Agrega artículos con el código o nombre" Style="{StaticResource CaptionStyle}" />
                             <TextBox x:Name="SearchTextBox" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PosTextBoxStyle}" Margin="0,12,0,0" />
+
+                            <Border Visibility="{Binding HasSuggestions, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    BorderBrush="{StaticResource SeparatorBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="14"
+                                    Background="#FFFFFF"
+                                    Margin="0,10,0,0">
+                                <ListBox ItemsSource="{Binding ProductSuggestions}"
+                                         MaxHeight="240"
+                                         BorderThickness="0"
+                                         ItemContainerStyle="{StaticResource SuggestionListBoxItemStyle}"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="12,8">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="{StaticResource NeutralDarkBrush}" />
+                                                <TextBlock Text="{Binding Barcode, StringFormat='Código: {0}'}" Style="{StaticResource SuggestionSecondaryTextStyle}" />
+                                                <TextBlock Text="{Binding InternalCode, StringFormat='Clave interna: {0}'}" Style="{StaticResource SuggestionSecondaryTextStyle}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
 
                             <Grid Margin="0,18,0,0">
                                 <Grid.ColumnDefinitions>

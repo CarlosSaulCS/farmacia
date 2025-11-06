@@ -17,8 +17,13 @@ public class DatabaseMaintenanceService
 
     public async Task<string> CreateBackupAsync(string destinationFolder, CancellationToken cancellationToken = default)
     {
+        await _context.Database.EnsureCreatedAsync(cancellationToken);
+
         var connection = _context.Database.GetDbConnection();
-        await connection.OpenAsync(cancellationToken);
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
 
         var sqlitePath = connection.DataSource;
         if (string.IsNullOrWhiteSpace(sqlitePath) || !File.Exists(sqlitePath))
@@ -26,9 +31,11 @@ public class DatabaseMaintenanceService
             throw new InvalidOperationException("No se encontró la base de datos.");
         }
 
+        await connection.CloseAsync();
+
         var fileName = $"farmacia-backup-{DateTime.Now:yyyyMMddHHmmss}.db";
         var destinationPath = Path.Combine(destinationFolder, fileName);
-        await using var sourceStream = File.OpenRead(sqlitePath);
+        await using var sourceStream = File.Open(sqlitePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         await using var destinationStream = File.Create(destinationPath);
         await sourceStream.CopyToAsync(destinationStream, cancellationToken);
 
@@ -38,8 +45,16 @@ public class DatabaseMaintenanceService
 
     public async Task RestoreBackupAsync(string backupPath, CancellationToken cancellationToken = default)
     {
+        if (!File.Exists(backupPath))
+        {
+            throw new FileNotFoundException("No se encontró el respaldo especificado.", backupPath);
+        }
+
         var connection = _context.Database.GetDbConnection();
-        await connection.CloseAsync();
+        if (connection.State != System.Data.ConnectionState.Closed)
+        {
+            await connection.CloseAsync();
+        }
 
         var sqlitePath = connection.DataSource;
         if (string.IsNullOrWhiteSpace(sqlitePath))
@@ -47,8 +62,8 @@ public class DatabaseMaintenanceService
             throw new InvalidOperationException("No se encontró la base de datos.");
         }
 
-        await using var sourceStream = File.OpenRead(backupPath);
-        await using var destinationStream = File.Create(sqlitePath);
+        await using var sourceStream = File.Open(backupPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        await using var destinationStream = File.Open(sqlitePath, FileMode.Create, FileAccess.Write, FileShare.Read);
         await sourceStream.CopyToAsync(destinationStream, cancellationToken);
 
         _logger.LogInformation("Base de datos restaurada desde {Source}", backupPath);
