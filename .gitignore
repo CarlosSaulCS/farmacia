@@ -1,0 +1,42 @@
+# Visual Studio / .NET
+.vs/
+*.user
+*.suo
+*.userprefs
+*.userosscache
+
+# Build output
+**/bin/
+**/obj/
+*.dll
+*.exe
+*.pdb
+
+# Rider/IDE
+.idea/
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Database files
+*.db
+*.sqlite
+
+# NuGet
+*.nupkg
+packages/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# JetBrains
+*.iml
+
+# Publish
+publish/
+
+# Secret files
+secrets.json
