@@ -8,5 +8,5 @@ public class CartItemModel
     public decimal UnitPrice { get; set; }
     public decimal Discount { get; set; }
     public decimal TaxRate { get; set; }
-    public decimal LineTotal => (UnitPrice - Discount) * Quantity * (1 + TaxRate);
+    public decimal LineTotal => (UnitPrice - Discount) * Quantity;
 }

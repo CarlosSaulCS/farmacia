@@ -29,12 +29,12 @@
 
         <Style x:Key="InventoryTextBoxStyle" TargetType="TextBox">
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="Padding" Value="12,8" />
             <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
             <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Margin" Value="0,6,0,0" />
+            <Setter Property="Margin" Value="0,6,12,0" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -86,6 +86,37 @@
             <Setter Property="Background" Value="#F3F4F6" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style x:Key="InventoryCatalogItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        </Style>
+
+        <Style x:Key="InventoryCatalogCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="CornerRadius" Value="20" />
+            <Setter Property="Padding" Value="20" />
+            <Setter Property="Margin" Value="0,0,18,18" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#E5E7EB" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Width" Value="320" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#1A1C33" BlurRadius="16" ShadowDepth="6" Opacity="0.08" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="InventoryStatusBadgeStyle" TargetType="Border" BasedOn="{StaticResource InventoryBadgeStyle}">
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="Margin" Value="0,6,6,0" />
+            <Setter Property="Background" Value="#F8FAFC" />
         </Style>
 
         <Style x:Key="InventoryDataGridHeaderStyle" TargetType="DataGridColumnHeader">
@@ -156,19 +187,20 @@
                                                Foreground="#4B5563" />
                                 </Border>
                             </WrapPanel>
-                            <StackPanel Orientation="Horizontal">
+                <WrapPanel>
                                 <Button Content="Sincronizar"
                                         Command="{Binding LoadCommand}"
                                         Style="{StaticResource SecondaryButtonStyle}"
                                         Height="40"
-                                        MinWidth="140" />
+                    Margin="0,0,12,0"
+                    MinWidth="140" />
                                 <Button Content="Registrar producto"
                                         Command="{Binding RegisterProductCommand}"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Height="40"
-                                        Margin="12,0,0,0"
-                                        MinWidth="160" />
-                            </StackPanel>
+                    Margin="0,12,0,0"
+                    MinWidth="160" />
+                </WrapPanel>
                         </StackPanel>
 
                         <Border Grid.Column="1"
@@ -327,27 +359,28 @@
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource InventoryTextBoxStyle}"
                                      MinHeight="40" />
-                            <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                <WrapPanel Margin="0,18,0,0">
                                 <Button Content="Buscar"
                                         Command="{Binding SearchCommand}"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Height="40"
-                                        MinWidth="120" />
+                    MinWidth="120"
+                    Margin="0,0,12,12" />
                                 <Button Content="Mostrar todo"
                                         Command="{Binding LoadCommand}"
                                         Style="{StaticResource SecondaryButtonStyle}"
                                         Height="40"
-                                        Margin="12,0,0,0"
-                                        MinWidth="140" />
-                                <ProgressBar Width="90"
-                                             Height="6"
-                                             Margin="20,0,0,0"
+                    Margin="0,0,12,12"
+                    MinWidth="140" />
+                <ProgressBar Width="90"
+                         Height="6"
+                         Margin="0,6,0,0"
                                              Minimum="0"
                                              Maximum="1"
                                              IsIndeterminate="True"
                                              VerticalAlignment="Center"
-                                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            </StackPanel>
+                         Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </WrapPanel>
                             <TextBlock Text="{Binding StatusMessage}"
                                        Foreground="{StaticResource DangerBrush}"
                                        TextWrapping="Wrap"
@@ -360,6 +393,216 @@
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding StatusMessage}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <StackPanel Margin="0,28,0,0">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDetailVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Separator Margin="0,0,0,18" />
+                                <TextBlock Text="Detalle y ajustes"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource NeutralDarkBrush}" />
+                                <TextBlock Text="Modifica precios, impuestos, mínimos y lotes del producto seleccionado."
+                                           Style="{StaticResource CaptionStyle}"
+                                           Margin="0,4,0,12" />
+
+                                <Border Background="#F8FAFF" CornerRadius="18" Padding="18">
+                                    <Border.DataContext>
+                                        <Binding Path="SelectedItem" />
+                                    </Border.DataContext>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource NeutralDarkBrush}" />
+                                        <TextBlock Text="{Binding Barcode, TargetNullValue='Sin código asignado'}"
+                                                   Style="{StaticResource CaptionStyle}"
+                                                   Margin="0,6,0,0" />
+                                        <WrapPanel Margin="0,12,0,0">
+                                            <Border Style="{StaticResource InventoryBadgeStyle}" Background="#E5E7EB">
+                                                <TextBlock Text="{Binding Supplier, TargetNullValue='Sin proveedor'}"
+                                                           Foreground="#4B5563" />
+                                            </Border>
+                                            <Border Style="{StaticResource InventoryBadgeStyle}" Background="#E5E7EB" Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding Lots.Count, StringFormat='Lotes {0}'}"
+                                                           Foreground="#4B5563" />
+                                            </Border>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <Grid Margin="0,20,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               Text="Costo"
+                                               Style="{StaticResource InventoryFormLabelStyle}"
+                                               Margin="0,0,12,4" />
+                                    <TextBox Grid.Row="1"
+                                             Grid.Column="0"
+                                             Text="{Binding SelectedProductCost, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InventoryTextBoxStyle}" />
+
+                                    <TextBlock Grid.Column="1"
+                                               Text="Precio"
+                                               Style="{StaticResource InventoryFormLabelStyle}"
+                                               Margin="0,0,0,4" />
+                                    <TextBox Grid.Row="1"
+                                             Grid.Column="1"
+                                             Text="{Binding SelectedProductPrice, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InventoryTextBoxStyle}"
+                                             Margin="0,6,0,0" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="0"
+                                               Text="Stock mínimo"
+                                               Style="{StaticResource InventoryFormLabelStyle}"
+                                               Margin="0,12,12,4" />
+                                    <TextBox Grid.Row="3"
+                                             Grid.Column="0"
+                                             Text="{Binding SelectedProductMinimum, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InventoryTextBoxStyle}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="1"
+                                               Text="Próxima caducidad"
+                                               Style="{StaticResource InventoryFormLabelStyle}"
+                                               Margin="0,12,0,4" />
+                                    <TextBlock Grid.Row="3"
+                                               Grid.Column="1"
+                                               Text="{Binding SelectedItem.ClosestExpiration, StringFormat='{}{0:dd/MM/yyyy}', TargetNullValue='Sin lotes registrados'}"
+                                               Style="{StaticResource CaptionStyle}"
+                                               Margin="0,12,0,0" />
+
+                                    <CheckBox Grid.Row="4"
+                                              Grid.ColumnSpan="2"
+                                              Content="Gestionado por lotes"
+                                              IsChecked="{Binding SelectedProductUsesBatches}"
+                                              Style="{StaticResource InventoryCheckBoxStyle}" />
+                                </Grid>
+
+                <WrapPanel Margin="0,20,0,0">
+                                    <Button Content="Actualizar"
+                                            Command="{Binding UpdateSelectedProductCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Height="40"
+                        MinWidth="140"
+                        Margin="0,0,12,12" />
+                    <Button Content="Eliminar"
+                        Command="{Binding DeleteProductCommand}"
+                        CommandParameter="{Binding SelectedItem}"
+                        Style="{StaticResource DangerButtonStyle}"
+                        Height="40"
+                        Margin="0,0,12,12"
+                        MinWidth="140"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
+                        ToolTip="Elimina el producto seleccionado si no tiene existencias ni movimientos" />
+                                    <Button Content="Recargar"
+                                            Command="{Binding LoadCommand}"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Height="40"
+                        Margin="0,0,0,12"
+                        MinWidth="140" />
+                </WrapPanel>
+
+                                <ItemsControl ItemsSource="{Binding SelectedItem.Lots}" Margin="0,24,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type models:InventoryLotModel}">
+                                            <Border Background="#FFFFFF"
+                                                    BorderBrush="#E5E7EB"
+                                                    BorderThickness="1"
+                                                    CornerRadius="14"
+                                                    Padding="14"
+                                                    Margin="0,10,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="Lote" Style="{StaticResource CaptionStyle}" />
+                                                        <TextBlock Text="{Binding LotCode, TargetNullValue='Sin registro'}"
+                                                                   FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Margin="18,0,0,0">
+                                                        <TextBlock Text="Disponibles" Style="{StaticResource CaptionStyle}" />
+                                                        <TextBlock Text="{Binding RemainingQuantity}" FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2" Margin="18,0,0,0">
+                                                        <TextBlock Text="Caducidad" Style="{StaticResource CaptionStyle}" />
+                                                        <TextBlock Text="{Binding Expiration, Converter={StaticResource DateOnlyConverter}, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin fecha'}"
+                                                                   FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.Style>
+                                        <Style TargetType="ItemsControl">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedItem.HasLots}" Value="False">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding SelectedItem}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ItemsControl.Style>
+                                </ItemsControl>
+
+                                <TextBlock Text="Este producto no tiene lotes registrados."
+                                           Foreground="#6B7280"
+                                           Margin="0,12,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedItem.HasLots}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <TextBlock Text="Busca un producto y selecciónalo para ver sus detalles y ajustes."
+                                       Foreground="#6B7280"
+                                       TextWrapping="Wrap"
+                                       Margin="0,28,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDetailVisible}" Value="True">
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -436,13 +679,7 @@
                     </Border>
                 </Grid>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.9*" />
-                        <ColumnDefinition Width="1.1*" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
+                <StackPanel>
                             <Border Background="#FFFFFF"
                                 CornerRadius="28"
                                 BorderBrush="{StaticResource SeparatorBrush}"
@@ -484,66 +721,105 @@
                                 </Border>
 
                                 <Grid Grid.Row="1">
-                                    <DataGrid ItemsSource="{Binding Items}"
-                                              AutoGenerateColumns="False"
-                                              CanUserAddRows="False"
-                                              SelectionMode="Single"
-                                              SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                                              ColumnHeaderStyle="{StaticResource InventoryDataGridHeaderStyle}"
-                                              RowStyle="{StaticResource InventoryDataGridRowStyle}"
-                                              GridLinesVisibility="None"
-                                              BorderThickness="0"
-                                              Background="Transparent"
-                                              FontSize="14"
-                                              Margin="20,16,20,18">
-                                        <DataGrid.Columns>
-                                            <DataGridTemplateColumn Header="Producto" Width="2.5*">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel>
+                                    <ListBox ItemsSource="{Binding Items}"
+                                             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                                             ItemContainerStyle="{StaticResource InventoryCatalogItemStyle}"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             Margin="20,16,20,18"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel IsItemsHost="True" />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type models:InventoryItemModel}">
+                                                <Border>
+                                                    <Border.Style>
+                                                        <Style TargetType="Border" BasedOn="{StaticResource InventoryCatalogCardStyle}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource InventoryAccentBrush}" />
+                                                                    <Setter Property="BorderThickness" Value="2" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsBelowMinimum}" Value="True">
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
                                                             <TextBlock Text="{Binding Name}"
+                                                                       FontSize="16"
                                                                        FontWeight="SemiBold"
-                                                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                                                                       Foreground="{StaticResource NeutralDarkBrush}"
+                                                                       TextWrapping="Wrap" />
+                                                            <Button Grid.Column="1"
+                                                                    Content="Eliminar"
+                                                                    Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Style="{StaticResource DangerButtonStyle}"
+                                                                    Padding="10,6"
+                                                                    Margin="12,0,0,0"
+                                                                    HorizontalAlignment="Right"
+                                                                    ToolTip="Elimina el producto seleccionado si no tiene existencias ni movimientos"
+                                    Focusable="False"
+                                    IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
+                                                        </Grid>
+
+                                                        <StackPanel Grid.Row="1" Margin="0,10,0,0">
                                                             <TextBlock Text="{Binding Supplier, TargetNullValue='Sin proveedor'}"
-                                                                       Style="{StaticResource CaptionStyle}"
-                                                                       Foreground="#6B7280" />
+                                                                       Foreground="#4B5563"
+                                                                       Style="{StaticResource CaptionStyle}" />
+                                                            <TextBlock Text="{Binding Barcode, StringFormat='Código {0}', TargetNullValue='Sin código'}"
+                                                                       Foreground="#6B7280"
+                                                                       Style="{StaticResource CaptionStyle}" />
                                                         </StackPanel>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
 
-                                            <DataGridTextColumn Header="Código" Binding="{Binding Barcode}" Width="*" />
+                                                        <Grid Grid.Row="2" Margin="0,14,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel>
+                                                                <TextBlock Text="Stock"
+                                                                           Style="{StaticResource CaptionStyle}" />
+                                                                <TextBlock Text="{Binding Stock, StringFormat='{}{0:N0}'}"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{StaticResource NeutralDarkBrush}" />
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="1">
+                                                                <TextBlock Text="Mínimo" Style="{StaticResource CaptionStyle}" />
+                                                                <TextBlock Text="{Binding Minimum, StringFormat='{}{0:N0}'}"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{StaticResource NeutralDarkBrush}" />
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2">
+                                                                <TextBlock Text="Precio" Style="{StaticResource CaptionStyle}" />
+                                                                <TextBlock Text="{Binding Price, StringFormat='{}{0:C}'}"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{StaticResource InventorySuccessBrush}" />
+                                                            </StackPanel>
+                                                        </Grid>
 
-                                            <DataGridTemplateColumn Header="Existencia" Width="1.3*">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel>
-                                                            <TextBlock Text="{Binding Stock, StringFormat='{}{0:N0} unidades'}"
-                                                                       FontWeight="SemiBold" />
-                                                            <TextBlock Text="{Binding Minimum, StringFormat='Mínimo {0:N0}'}"
-                                                                       Foreground="#6B7280">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionStyle}">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsBelowMinimum}" Value="True">
-                                                                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-
-                                            <DataGridTemplateColumn Header="Estado" Width="1.4*">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <WrapPanel>
+                                                        <WrapPanel Grid.Row="3" Margin="0,14,0,0">
                                                             <Border>
                                                                 <Border.Style>
-                                                                    <Style TargetType="Border" BasedOn="{StaticResource InventoryBadgeStyle}">
+                                                                    <Style TargetType="Border" BasedOn="{StaticResource InventoryStatusBadgeStyle}">
                                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                                         <Style.Triggers>
                                                                             <DataTrigger Binding="{Binding IsBelowMinimum}" Value="True">
@@ -559,9 +835,9 @@
                                                                            FontWeight="SemiBold" />
                                                             </Border>
 
-                                                            <Border Margin="6,0,0,0">
+                                                            <Border>
                                                                 <Border.Style>
-                                                                    <Style TargetType="Border" BasedOn="{StaticResource InventoryBadgeStyle}">
+                                                                    <Style TargetType="Border" BasedOn="{StaticResource InventoryStatusBadgeStyle}">
                                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                                         <Style.Triggers>
                                                                             <DataTrigger Binding="{Binding IsExpiringSoon}" Value="True">
@@ -572,14 +848,14 @@
                                                                         </Style.Triggers>
                                                                     </Style>
                                                                 </Border.Style>
-                                                                <TextBlock Text="Caducidad próxima"
+                                                                <TextBlock Text="Caduca pronto"
                                                                            Foreground="{StaticResource InventoryWarningBrush}"
                                                                            FontWeight="SemiBold" />
                                                             </Border>
 
-                                                            <Border Margin="6,0,0,0">
+                                                            <Border>
                                                                 <Border.Style>
-                                                                    <Style TargetType="Border" BasedOn="{StaticResource InventoryBadgeStyle}">
+                                                                    <Style TargetType="Border" BasedOn="{StaticResource InventoryStatusBadgeStyle}">
                                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                                         <Style.Triggers>
                                                                             <DataTrigger Binding="{Binding UsesBatches}" Value="True">
@@ -588,52 +864,15 @@
                                                                         </Style.Triggers>
                                                                     </Style>
                                                                 </Border.Style>
-                                                                <TextBlock Text="Gestiona lotes" Foreground="#4B5563" />
-                                                            </Border>
-                                                        </WrapPanel>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-
-                                            <DataGridTemplateColumn Header="Precio" Width="*">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel>
-                                                            <TextBlock Text="{Binding Price, StringFormat='{}{0:C}'}"
-                                                                       FontWeight="SemiBold" />
-                                                            <TextBlock Text="{Binding Cost, StringFormat='Costo {0:C}'}"
-                                                                       Style="{StaticResource CaptionStyle}"
-                                                                       Foreground="#6B7280" />
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-
-                                            <DataGridTemplateColumn Header="Caducidad" Width="*">
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding ClosestExpiration, Converter={StaticResource DateOnlyConverter}, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin lotes'}" />
-                                                            <Border Margin="8,0,0,0">
-                                                                <Border.Style>
-                                                                    <Style TargetType="Border" BasedOn="{StaticResource InventoryBadgeStyle}">
-                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding HasLots}" Value="True">
-                                                                                <Setter Property="Visibility" Value="Visible" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Border.Style>
-                                                                <TextBlock Text="{Binding Lots.Count, StringFormat='Lotes {0}'}"
+                                                                <TextBlock Text="Gestiona lotes"
                                                                            Foreground="#4B5563" />
                                                             </Border>
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
+                                                        </WrapPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
 
                                     <Border Background="#FFFFFFCC"
                                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -688,7 +927,8 @@
                                     <TextBox Grid.ColumnSpan="2"
                                              Grid.Row="1"
                                              Text="{Binding NewProductName, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InventoryTextBoxStyle}" />
+                                             Style="{StaticResource InventoryTextBoxStyle}"
+                                             Margin="0,6,0,0" />
 
                                     <TextBlock Grid.Row="2"
                                                Grid.Column="0"
@@ -709,6 +949,7 @@
                                              Grid.Column="1"
                                              Text="{Binding NewProductDescription, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource InventoryTextBoxStyle}"
+                                             Margin="0,6,0,0"
                                              AcceptsReturn="True"
                                              Height="80"
                                              TextWrapping="Wrap" />
@@ -731,17 +972,18 @@
                                     <TextBox Grid.Row="5"
                                              Grid.Column="1"
                                              Text="{Binding NewProductPrice, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InventoryTextBoxStyle}" />
+                                                                                         Style="{StaticResource InventoryTextBoxStyle}"
+                                                                                         Margin="0,6,0,0" />
 
                                     <TextBlock Grid.Row="6"
                                                Grid.Column="0"
-                                               Text="Impuesto (%)"
+                                               Text="Caducidad (opcional)"
                                                Style="{StaticResource InventoryFormLabelStyle}"
                                                Margin="0,12,12,4" />
-                                    <TextBox Grid.Row="7"
-                                             Grid.Column="0"
-                                             Text="{Binding NewProductTaxRate, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InventoryTextBoxStyle}" />
+                                    <DatePicker Grid.Row="7"
+                                                Grid.Column="0"
+                                                SelectedDate="{Binding NewProductExpirationDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                Margin="0,6,12,0" />
 
                                     <TextBlock Grid.Row="6"
                                                Grid.Column="1"
@@ -751,7 +993,8 @@
                                     <TextBox Grid.Row="7"
                                              Grid.Column="1"
                                              Text="{Binding NewProductMinimum, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InventoryTextBoxStyle}" />
+                                             Style="{StaticResource InventoryTextBoxStyle}"
+                                             Margin="0,6,0,0" />
 
                                     <CheckBox Grid.Row="8"
                                               Grid.ColumnSpan="2"
@@ -760,262 +1003,48 @@
                                               Style="{StaticResource InventoryCheckBoxStyle}" />
                                 </Grid>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
+                <WrapPanel Margin="0,24,0,0">
                                     <Button Content="Registrar"
                                             Command="{Binding RegisterProductCommand}"
                                             Style="{StaticResource PrimaryButtonStyle}"
                                             Height="42"
-                                            MinWidth="140" />
+                        MinWidth="140"
+                        Margin="0,0,12,12" />
                                     <Button Content="Limpiar"
                                             Command="{Binding ClearNewProductFormCommand}"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Height="42"
-                                            Margin="12,0,0,0"
-                                            MinWidth="120" />
-                                </StackPanel>
+                        Margin="0,0,0,12"
+                        MinWidth="120" />
+                </WrapPanel>
                             </StackPanel>
                         </Border>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1">
-                        <Border Background="#FFFFFF"
-                                CornerRadius="28"
-                                Padding="28"
-                                BorderBrush="{StaticResource SeparatorBrush}"
-                                BorderThickness="1">
-                            <Border.Effect>
-                                <DropShadowEffect Color="#1A1C33" BlurRadius="20" ShadowDepth="8" Opacity="0.06" />
-                            </Border.Effect>
-                            <StackPanel>
-                                <TextBlock Text="Detalle y ajustes"
-                                           FontSize="18"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource NeutralDarkBrush}"
-                                           Margin="0,0,0,6" />
-                                <TextBlock Text="Selecciona un producto para revisar su información y ajustar parámetros."
-                                           Style="{StaticResource CaptionStyle}"
-                                           Margin="0,4,0,12" />
-                                <TextBlock Text="Selecciona un producto de la lista para ver el detalle."
-                                           Foreground="#6B7280"
-                                           TextWrapping="Wrap"
-                                           Margin="0,16,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedItem}" Value="{x:Null}">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-
-                                <StackPanel Margin="0,16,0,0">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedItem}" Value="{x:Null}">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
-
-                                    <Border Background="#F8FAFF" CornerRadius="18" Padding="18">
-                                        <Border.DataContext>
-                                            <Binding Path="SelectedItem" />
-                                        </Border.DataContext>
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Name}"
-                                                       FontSize="20"
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource NeutralDarkBrush}" />
-                                            <TextBlock Text="{Binding Barcode, TargetNullValue='Sin código asignado'}"
-                                                       Style="{StaticResource CaptionStyle}"
-                                                       Margin="0,6,0,0" />
-                                            <WrapPanel Margin="0,12,0,0">
-                                                <Border Style="{StaticResource InventoryBadgeStyle}" Background="#E5E7EB">
-                                                    <TextBlock Text="{Binding Supplier, TargetNullValue='Sin proveedor'}"
-                                                               Foreground="#4B5563" />
-                                                </Border>
-                                                <Border Style="{StaticResource InventoryBadgeStyle}" Background="#E5E7EB" Margin="8,0,0,0">
-                                                    <TextBlock Text="{Binding Lots.Count, StringFormat='Lotes {0}'}"
-                                                               Foreground="#4B5563" />
-                                                </Border>
-                                            </WrapPanel>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Grid Margin="0,20,0,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-
-                                        <TextBlock Grid.Column="0"
-                                                   Text="Costo"
-                                                   Style="{StaticResource InventoryFormLabelStyle}"
-                                                   Margin="0,0,12,4" />
-                                        <TextBox Grid.Row="1"
-                                                 Grid.Column="0"
-                                                 Text="{Binding SelectedProductCost, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource InventoryTextBoxStyle}" />
-
-                                        <TextBlock Grid.Column="1"
-                                                   Text="Precio"
-                                                   Style="{StaticResource InventoryFormLabelStyle}"
-                                                   Margin="0,0,0,4" />
-                                        <TextBox Grid.Row="1"
-                                                 Grid.Column="1"
-                                                 Text="{Binding SelectedProductPrice, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource InventoryTextBoxStyle}" />
-
-                                        <TextBlock Grid.Row="2"
-                                                   Grid.Column="0"
-                                                   Text="Mínimo"
-                                                   Style="{StaticResource InventoryFormLabelStyle}"
-                                                   Margin="0,12,12,4" />
-                                        <TextBox Grid.Row="3"
-                                                 Grid.Column="0"
-                                                 Text="{Binding SelectedProductMinimum, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource InventoryTextBoxStyle}" />
-
-                                        <TextBlock Grid.Row="2"
-                                                   Grid.Column="1"
-                                                   Text="Impuesto (%)"
-                                                   Style="{StaticResource InventoryFormLabelStyle}"
-                                                   Margin="0,12,0,4" />
-                                        <TextBox Grid.Row="3"
-                                                 Grid.Column="1"
-                                                 Text="{Binding SelectedProductTaxRate, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource InventoryTextBoxStyle}" />
-
-                                        <CheckBox Grid.Row="4"
-                                                  Grid.ColumnSpan="2"
-                                                  Content="Gestionado por lotes"
-                                                  IsChecked="{Binding SelectedProductUsesBatches}"
-                                                  Style="{StaticResource InventoryCheckBoxStyle}" />
-                                    </Grid>
-
-                                    <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
-                                        <Button Content="Actualizar"
-                                                Command="{Binding UpdateSelectedProductCommand}"
-                                                Style="{StaticResource PrimaryButtonStyle}"
-                                                Height="40"
-                                                MinWidth="140" />
-                                        <Button Content="Recargar"
-                                                Command="{Binding LoadCommand}"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                Height="40"
-                                                Margin="12,0,0,0"
-                                                MinWidth="140" />
-                                    </StackPanel>
-
-                                    <ItemsControl ItemsSource="{Binding SelectedItem.Lots}" Margin="0,24,0,0">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:InventoryLotModel}">
-                                                <Border Background="#FFFFFF"
-                                                        BorderBrush="#E5E7EB"
-                                                        BorderThickness="1"
-                                                        CornerRadius="14"
-                                                        Padding="14"
-                                                        Margin="0,10,0,0">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*" />
-                                                            <ColumnDefinition Width="Auto" />
-                                                            <ColumnDefinition Width="Auto" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <StackPanel>
-                                                            <TextBlock Text="Lote" Style="{StaticResource CaptionStyle}" />
-                                                            <TextBlock Text="{Binding LotCode, TargetNullValue='Sin registro'}"
-                                                                       FontWeight="SemiBold" />
-                                                        </StackPanel>
-                                                        <StackPanel Grid.Column="1" Margin="18,0,0,0">
-                                                            <TextBlock Text="Disponibles" Style="{StaticResource CaptionStyle}" />
-                                                            <TextBlock Text="{Binding RemainingQuantity}" FontWeight="SemiBold" />
-                                                        </StackPanel>
-                                                        <StackPanel Grid.Column="2" Margin="18,0,0,0">
-                                                            <TextBlock Text="Caducidad" Style="{StaticResource CaptionStyle}" />
-                                                            <TextBlock Text="{Binding Expiration, Converter={StaticResource DateOnlyConverter}, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin fecha'}" />
-                                                        </StackPanel>
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                        <ItemsControl.Style>
-                                            <Style TargetType="ItemsControl">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedItem.HasLots}" Value="False">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedItem}" Value="{x:Null}">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ItemsControl.Style>
-                                    </ItemsControl>
-
-                                    <TextBlock Text="Este producto no tiene lotes registrados."
-                                               Foreground="#6B7280"
-                                               Margin="0,12,0,0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedItem.HasLots}" Value="False">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedItem}" Value="{x:Null}">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Background="#FFFFFF"
-                                CornerRadius="24"
-                                Padding="24"
-                                Margin="0,20,0,0"
-                                BorderBrush="{StaticResource SeparatorBrush}"
-                                BorderThickness="1">
-                            <StackPanel>
-                                <TextBlock Text="Recordatorios"
-                                           FontSize="16"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource NeutralDarkBrush}"
-                                           Margin="0,0,0,6" />
-                                <TextBlock Text="Sigue estas acciones para mantener tu inventario saludable."
-                                           Style="{StaticResource CaptionStyle}"
-                                           Margin="0,6,0,12" />
-                                <TextBlock Text="• Programa recuentos semanales de existencias."
-                                           Foreground="#4B5563" />
-                                <TextBlock Text="• Completa proveedores en productos sin asignar."
-                                           Foreground="#4B5563"
-                                           Margin="0,4,0,0" />
-                                <TextBlock Text="• Prioriza lotes con caducidad próxima en la venta."
-                                           Foreground="#4B5563"
-                                           Margin="0,4,0,0" />
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Grid>
+                    <Border Background="#FFFFFF"
+                            CornerRadius="24"
+                            Padding="24"
+                            Margin="0,20,0,0"
+                            BorderBrush="{StaticResource SeparatorBrush}"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="Recordatorios"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}"
+                                       Margin="0,0,0,6" />
+                            <TextBlock Text="Sigue estas acciones para mantener tu inventario saludable."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,6,0,12" />
+                            <TextBlock Text="• Programa recuentos semanales de existencias."
+                                       Foreground="#4B5563" />
+                            <TextBlock Text="• Completa proveedores en productos sin asignar."
+                                       Foreground="#4B5563"
+                                       Margin="0,4,0,0" />
+                            <TextBlock Text="• Prioriza lotes con caducidad próxima en la venta."
+                                       Foreground="#4B5563"
+                                       Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>

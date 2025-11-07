@@ -717,14 +717,14 @@
                                                     <Button Content="Cancelar"
                                                             Command="{Binding DataContext.MarkCancelledCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                                             CommandParameter="{Binding}"
-                                                            Style="{StaticResource SecondaryButtonStyle}"
+                                Style="{StaticResource DangerButtonStyle}"
                                                             MinWidth="96"
                                                             Margin="0,0,8,8"
                                                             IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
                                                     <Button Content="No asistió"
                                                             Command="{Binding DataContext.MarkNoShowCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                                             CommandParameter="{Binding}"
-                                                            Style="{StaticResource DangerButtonStyle}"
+                                Style="{StaticResource SecondaryButtonStyle}"
                                                             MinWidth="96"
                                                             IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
                                                 </WrapPanel>
@@ -845,14 +845,14 @@
                                         <Button Content="Cancelar"
                                                 Command="{Binding DataContext.MarkCancelledCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource SecondaryButtonStyle}"
+                        Style="{StaticResource DangerButtonStyle}"
                         Height="40"
                         Margin="0,0,12,0"
                                                 IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
                                         <Button Content="No asistió"
                                                 Command="{Binding DataContext.MarkNoShowCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                                 CommandParameter="{Binding}"
-                                                Style="{StaticResource DangerButtonStyle}"
+                        Style="{StaticResource SecondaryButtonStyle}"
                                                 Height="40"
                                                 IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
                                     </UniformGrid>

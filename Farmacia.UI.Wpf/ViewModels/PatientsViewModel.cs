@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Farmacia.Data.Contexts;
 using Farmacia.Domain.Entities;
+using Farmacia.Domain.Enums;
 using Farmacia.Domain.Validators;
 using Farmacia.UI.Wpf.Models;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,12 @@ public partial class PatientsViewModel : ViewModelBase
     private int _withoutContactInfo;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDetailVisible))]
     private PatientListItemModel? _selectedPatient;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDetailVisible))]
+    private bool _detailActivated;
 
     [ObservableProperty]
     private string _newPatientName = string.Empty;
@@ -69,14 +75,42 @@ public partial class PatientsViewModel : ViewModelBase
         _context = context;
     }
 
+    public bool IsDetailVisible => DetailActivated && SelectedPatient is not null;
+
     partial void OnIsBusyChanged(bool value)
     {
         RegisterPatientCommand.NotifyCanExecuteChanged();
+    DeletePatientCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnNewPatientNameChanged(string value)
     {
         RegisterPatientCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnSelectedPatientChanged(PatientListItemModel? value)
+    {
+    DeletePatientCommand.NotifyCanExecuteChanged();
+
+        if (value is not null)
+        {
+            if (!DetailActivated)
+            {
+                DetailActivated = true;
+            }
+        }
+        else if (!Patients.Any())
+        {
+            DetailActivated = false;
+        }
+    }
+
+    partial void OnDetailActivatedChanged(bool value)
+    {
+        if (!value)
+        {
+            SelectedPatient = null;
+        }
     }
 
     [RelayCommand]
@@ -88,6 +122,10 @@ public partial class PatientsViewModel : ViewModelBase
     [RelayCommand]
     private async Task SearchAsync()
     {
+        if (!DetailActivated)
+        {
+            DetailActivated = true;
+        }
         await PopulateAsync(SearchText);
     }
 
@@ -120,6 +158,11 @@ public partial class PatientsViewModel : ViewModelBase
             _context.Patients.Add(patient);
             await _context.SaveChangesAsync();
 
+            if (!DetailActivated)
+            {
+                DetailActivated = true;
+            }
+
             await PopulateAsync(SearchText);
             SelectedPatient = Patients.FirstOrDefault(p => p.PatientId == patient.Id) ?? Patients.FirstOrDefault();
 
@@ -148,6 +191,73 @@ public partial class PatientsViewModel : ViewModelBase
         return !IsBusy && !string.IsNullOrWhiteSpace(NewPatientName) && NewPatientName.Trim().Length >= 3;
     }
 
+    private bool CanDeletePatient(PatientListItemModel? item)
+    {
+        return !IsBusy && (item ?? SelectedPatient) is not null;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanDeletePatient))]
+    private async Task DeletePatientAsync(PatientListItemModel? item)
+    {
+        var target = item ?? SelectedPatient;
+        if (target is null)
+        {
+            StatusMessage = "Selecciona un paciente para eliminar.";
+            return;
+        }
+
+        try
+        {
+            IsBusy = true;
+            StatusMessage = null;
+
+            SelectedPatient = target;
+            var patientId = target.PatientId;
+
+            var hasConsultations = await _context.Consultations.AnyAsync(c => c.PatientId == patientId);
+            if (hasConsultations)
+            {
+                StatusMessage = "No puedes eliminar pacientes con consultas registradas.";
+                return;
+            }
+
+            var hasActiveAppointments = await _context.Appointments.AnyAsync(a =>
+                a.PatientId == patientId &&
+                (a.Status == AppointmentStatus.Programada ||
+                 a.Status == AppointmentStatus.Confirmada ||
+                 a.Status == AppointmentStatus.EnProceso));
+
+            if (hasActiveAppointments)
+            {
+                StatusMessage = "Cancela o finaliza las citas pendientes antes de eliminar al paciente.";
+                return;
+            }
+
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.Id == patientId);
+
+            if (patient is null)
+            {
+                StatusMessage = "No se encontró el paciente seleccionado.";
+                return;
+            }
+
+            _context.Patients.Remove(patient);
+            await _context.SaveChangesAsync();
+
+            await PopulateAsync(SearchText);
+
+            StatusMessage = "Paciente eliminado.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private void ClearNewPatientFormState()
     {
         NewPatientName = string.Empty;
@@ -165,6 +275,7 @@ public partial class PatientsViewModel : ViewModelBase
         {
             IsBusy = true;
             StatusMessage = null;
+            var previousSelectionId = DetailActivated ? SelectedPatient?.PatientId : null;
             Patients.Clear();
             SelectedPatient = null;
 
@@ -213,7 +324,14 @@ public partial class PatientsViewModel : ViewModelBase
 
             UpdateMetrics();
 
-            if (SelectedPatient is null)
+            var shouldSelect = DetailActivated;
+
+            if (shouldSelect && previousSelectionId.HasValue)
+            {
+                SelectedPatient = Patients.FirstOrDefault(p => p.PatientId == previousSelectionId.Value);
+            }
+
+            if (shouldSelect && SelectedPatient is null)
             {
                 SelectedPatient = Patients.FirstOrDefault();
             }
@@ -221,6 +339,7 @@ public partial class PatientsViewModel : ViewModelBase
             if (!Patients.Any())
             {
                 StatusMessage = "No se encontraron pacientes.";
+                DetailActivated = false;
             }
         }
         catch (Exception ex)

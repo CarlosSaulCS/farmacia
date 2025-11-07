@@ -4,6 +4,7 @@
              xmlns:converters="clr-namespace:Farmacia.UI.Wpf.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:Farmacia.UI.Wpf.Models"
              mc:Ignorable="d"
              Loaded="UserControl_OnLoaded">
     <UserControl.Resources>
@@ -79,35 +80,38 @@
             <Setter Property="Margin" Value="0,8,0,4" />
         </Style>
 
-        <Style x:Key="PatientsDataGridHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#1F2937" />
-            <Setter Property="Background" Value="#F1F5F9" />
-            <Setter Property="Padding" Value="16,12" />
-            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
-            <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Style x:Key="PatientsCatalogItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         </Style>
 
-        <Style x:Key="PatientsDataGridRowStyle" TargetType="DataGridRow">
-            <Setter Property="Height" Value="Auto" />
-            <Setter Property="MinHeight" Value="64" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="Padding" Value="14,0" />
-            <Setter Property="Margin" Value="0,6,0,0" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Background" Value="Transparent" />
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F0F9FF" />
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E0F2FE" />
-                    <Setter Property="Foreground" Value="{StaticResource NeutralDarkBrush}" />
-                </Trigger>
-            </Style.Triggers>
+        <Style x:Key="PatientsCatalogCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
+            <Setter Property="CornerRadius" Value="20" />
+            <Setter Property="Padding" Value="20" />
+            <Setter Property="Margin" Value="0,0,18,18" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Width" Value="320" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#1A1C33" BlurRadius="18" ShadowDepth="8" Opacity="0.08" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PatientsStatusBadgeStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="Margin" Value="0,6,6,0" />
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
         </Style>
 
         <Style x:Key="PatientsInfoBadgeStyle" TargetType="Border">
@@ -342,6 +346,196 @@
                                              VerticalAlignment="Center"
                                              Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             </StackPanel>
+
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       Foreground="{StaticResource DangerBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,18,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding StatusMessage}" Value="">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding StatusMessage}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <StackPanel Margin="0,28,0,0">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDetailVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Separator Margin="0,0,0,18" />
+                                <TextBlock Text="Ficha rápida"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource NeutralDarkBrush}" />
+                                <TextBlock Text="Consulta datos clave y prepara el siguiente contacto."
+                                           Style="{StaticResource CaptionStyle}"
+                                           Margin="0,4,0,16"
+                                           TextWrapping="Wrap" />
+
+                                <Border Background="#F8FAFF"
+                                        CornerRadius="18"
+                                        Padding="18"
+                                        BorderBrush="{StaticResource SeparatorBrush}"
+                                        BorderThickness="1">
+                                    <Border.DataContext>
+                                        <Binding Path="SelectedPatient" />
+                                    </Border.DataContext>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource NeutralDarkBrush}" />
+                                        <TextBlock Text="{Binding Age, StringFormat='Edad {0}', TargetNullValue='Edad N/D'}"
+                                                   Style="{StaticResource CaptionStyle}"
+                                                   Margin="0,6,0,0" />
+                                        <WrapPanel Margin="0,12,0,0">
+                                            <Border Style="{StaticResource PatientsInfoBadgeStyle}">
+                                                <TextBlock Text="{Binding Phone, TargetNullValue='Sin teléfono registrado'}" />
+                                            </Border>
+                                            <Border Style="{StaticResource PatientsInfoBadgeStyle}">
+                                                <TextBlock Text="{Binding BirthDate, StringFormat='Nacimiento {0:dd MMM yyyy}', TargetNullValue='Nacimiento N/D'}" />
+                                            </Border>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <Grid Margin="0,18,0,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Grid.Column="0"
+                                               Text="Teléfono"
+                                               Style="{StaticResource CaptionStyle}" />
+                                    <TextBlock Grid.Row="0"
+                                               Grid.Column="1"
+                                               Text="{Binding SelectedPatient.Phone, TargetNullValue='Sin teléfono registrado'}"
+                                               TextWrapping="Wrap" />
+
+                                    <TextBlock Grid.Row="1"
+                                               Grid.Column="0"
+                                               Text="Edad"
+                                               Style="{StaticResource CaptionStyle}"
+                                               Margin="0,12,0,0" />
+                                    <TextBlock Grid.Row="1"
+                                               Grid.Column="1"
+                                               Text="{Binding SelectedPatient.Age, TargetNullValue='N/D'}"
+                                               FontWeight="SemiBold"
+                                               Margin="0,12,0,0" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="0"
+                                               Text="Nacimiento"
+                                               Style="{StaticResource CaptionStyle}"
+                                               Margin="0,12,0,0" />
+                                    <TextBlock Grid.Row="2"
+                                               Grid.Column="1"
+                                               Text="{Binding SelectedPatient.BirthDate, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin registro'}"
+                                               Margin="0,12,0,0" />
+
+                                    <TextBlock Grid.Row="3"
+                                               Grid.Column="0"
+                                               Text="Última consulta"
+                                               Style="{StaticResource CaptionStyle}"
+                                               Margin="0,12,0,0" />
+                                    <TextBlock Grid.Row="3"
+                                               Grid.Column="1"
+                                               Text="{Binding SelectedPatient.LastConsultation, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin consultas'}"
+                                               Margin="0,12,0,0" />
+                                </Grid>
+
+                                <Border Margin="0,20,0,0">
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource PatientsInfoBadgeStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Setter Property="Background" Value="#FEF3C7" />
+                                            <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedPatient.IsBirthdaySoon}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="Cumpleaños cercano: envía un recordatorio"
+                                               Foreground="{StaticResource WarningBrush}"
+                                               FontWeight="SemiBold" />
+                                </Border>
+
+                                <StackPanel Margin="0,24,0,0">
+                                    <TextBlock Text="Notas"
+                                               Style="{StaticResource PatientsLabelStyle}" />
+                                    <Border Background="{StaticResource SurfaceAltBrush}"
+                                            BorderBrush="{StaticResource SeparatorBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="16"
+                                            Padding="16"
+                                            Margin="0,10,0,0">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="180">
+                                            <TextBlock Text="{Binding SelectedPatient.Notes, TargetNullValue='Sin notas registradas'}"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                                        </ScrollViewer>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
+                                    <Button Content="Eliminar paciente"
+                                            Command="{Binding DeletePatientCommand}"
+                                            Style="{StaticResource DangerButtonStyle}"
+                                            Height="40"
+                                            MinWidth="170"
+                                            ToolTip="Elimina el paciente seleccionado si no tiene citas pendientes ni consultas"
+                                            IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}" />
+                                    <Button Content="Actualizar directorio"
+                                            Command="{Binding LoadCommand}"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Height="40"
+                                            Margin="12,0,0,0"
+                                            MinWidth="170"
+                                            IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBlock Text="Busca un paciente y selecciónalo para ver su ficha."
+                                       Foreground="#6B7280"
+                                       TextWrapping="Wrap"
+                                       Margin="0,28,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDetailVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </Border>
 
@@ -575,321 +769,212 @@
                     </Grid>
                 </Border>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.65*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                <Border Background="#FFFFFF"
+                        CornerRadius="28"
+                        Padding="0"
+                        BorderBrush="{StaticResource SeparatorBrush}"
+                        BorderThickness="1"
+                        Margin="0,0,0,24">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#1A1C33" BlurRadius="20" ShadowDepth="8" Opacity="0.06" />
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                    <Border Background="#FFFFFF"
-                            CornerRadius="24"
-                            Padding="0"
-                            BorderBrush="{StaticResource SeparatorBrush}"
-                            BorderThickness="1"
-                            Margin="0,0,22,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
-                            <Border Background="#F8FAFF"
-                                    Padding="24"
-                                    CornerRadius="24,24,0,0">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="Directorio de pacientes"
-                                               FontSize="17"
+                        <Border Grid.Row="0"
+                                Background="#F8FAFF"
+                                Padding="24"
+                                CornerRadius="28,28,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Catálogo de pacientes"
+                                               FontSize="18"
                                                FontWeight="SemiBold"
                                                Foreground="{StaticResource NeutralDarkBrush}" />
-                                    <TextBlock Text="{Binding Patients.Count, StringFormat='{}{0} registros'}"
-                                               Style="{StaticResource CaptionStyle}"
-                                               Margin="12,0,0,0"
-                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="Ordena tu directorio y localiza expedientes clave."
+                                               Style="{StaticResource CaptionStyle}" />
                                 </StackPanel>
-                            </Border>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Patients.Count, StringFormat='{}{0} registros'}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource PatientsAccentBrush}"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
 
-                            <DataGrid Grid.Row="1"
-                                      ItemsSource="{Binding Patients}"
-                                      AutoGenerateColumns="False"
-                                      CanUserAddRows="False"
-                                      IsReadOnly="True"
-                                      SelectionMode="Single"
-                                      SelectedItem="{Binding SelectedPatient, Mode=TwoWay}"
-                                      Style="{StaticResource CardDataGridStyle}"
-                                      RowStyle="{StaticResource PatientsDataGridRowStyle}"
-                                      ColumnHeaderStyle="{StaticResource PatientsDataGridHeaderStyle}"
-                                      Margin="20,16,20,24"
-                                      BorderThickness="0"
-                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                      RowDetailsVisibilityMode="Collapsed">
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="Paciente" Width="2.6*" MinWidth="260">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel>
+                        <Grid Grid.Row="1">
+                            <ListBox ItemsSource="{Binding Patients}"
+                                     SelectedItem="{Binding SelectedPatient, Mode=TwoWay}"
+                                     ItemContainerStyle="{StaticResource PatientsCatalogItemStyle}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Margin="20,16,20,20"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:PatientListItemModel}">
+                                        <Border>
+                                            <Border.Style>
+                                                <Style TargetType="Border" BasedOn="{StaticResource PatientsCatalogCardStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
+                                                            <Setter Property="BorderBrush" Value="{StaticResource PatientsAccentBrush}" />
+                                                            <Setter Property="BorderThickness" Value="2" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
                                                     <TextBlock Text="{Binding Name}"
+                                                               FontSize="16"
                                                                FontWeight="SemiBold"
-                                                               FontSize="15" />
-                                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                                        <TextBlock Text="{Binding Age, StringFormat='Edad {0}', TargetNullValue='Edad N/D'}"
-                                                                   Style="{StaticResource CaptionStyle}" />
-                                                        <TextBlock Text=" · " Style="{StaticResource CaptionStyle}" />
-                                                        <TextBlock Text="{Binding LastConsultation, StringFormat='Última {0:dd MMM yyyy}', TargetNullValue='Sin consultas'}"
-                                                                   Style="{StaticResource CaptionStyle}" />
-                                                    </StackPanel>
+                                                               Foreground="{StaticResource NeutralDarkBrush}"
+                                                               TextWrapping="Wrap" />
+                                                    <Button Grid.Column="1"
+                                                            Content="Eliminar"
+                                                            Command="{Binding DataContext.DeletePatientCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource DangerButtonStyle}"
+                                                            Padding="10,6"
+                                                            Margin="12,0,0,0"
+                                                            ToolTip="Elimina el paciente si no tiene citas activas ni consultas registradas"
+                                                            Focusable="False"
+                                                            IsEnabled="{Binding DataContext.IsBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource InverseBoolConverter}}" />
+                                                </Grid>
+
+                                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0">
+                                                    <TextBlock Text="{Binding Age, StringFormat='Edad {0}', TargetNullValue='Edad N/D'}"
+                                                               Style="{StaticResource CaptionStyle}" />
+                                                    <TextBlock Text=" · " Style="{StaticResource CaptionStyle}" />
+                                                    <TextBlock Text="{Binding LastConsultation, StringFormat='Última {0:dd MMM yyyy}', TargetNullValue='Sin consultas'}"
+                                                               Style="{StaticResource CaptionStyle}" />
                                                 </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="Contacto" Width="1.6*" MinWidth="200">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Phone, TargetNullValue='Sin teléfono'}" />
-                                                    <Border Margin="10,0,0,0">
+
+                                                <Grid Grid.Row="2" Margin="0,12,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="Teléfono" Style="{StaticResource CaptionStyle}" />
+                                                        <TextBlock Text="{Binding Phone, TargetNullValue='Sin teléfono'}"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource NeutralDarkBrush}" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="Nacimiento" Style="{StaticResource CaptionStyle}" />
+                                                        <TextBlock Text="{Binding BirthDate, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin registro'}"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource NeutralDarkBrush}" />
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <WrapPanel Grid.Row="3" Margin="0,12,0,0">
+                                                    <Border>
                                                         <Border.Style>
-                                                            <Style TargetType="Border" BasedOn="{StaticResource PatientsInfoBadgeStyle}">
+                                                            <Style TargetType="Border" BasedOn="{StaticResource PatientsStatusBadgeStyle}">
                                                                 <Setter Property="Visibility" Value="Collapsed" />
-                                                                <Setter Property="Background" Value="#FFF1F2" />
-                                                                <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
-                                                                <Setter Property="BorderThickness" Value="1" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding HasPhone}" Value="False">
                                                                         <Setter Property="Visibility" Value="Visible" />
+                                                                        <Setter Property="Background" Value="#FFF1F2" />
+                                                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </Border.Style>
-                                                        <TextBlock Text="Falta" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="Sin contacto"
+                                                                   Foreground="{StaticResource DangerBrush}"
+                                                                   FontWeight="SemiBold" />
                                                     </Border>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="Cumpleaños" Width="1.5*" MinWidth="190">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding BirthDate, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin registro'}" />
-                                                    <Border Margin="10,0,0,0">
+
+                                                    <Border Margin="6,0,0,0">
                                                         <Border.Style>
-                                                            <Style TargetType="Border" BasedOn="{StaticResource PatientsInfoBadgeStyle}">
+                                                            <Style TargetType="Border" BasedOn="{StaticResource PatientsStatusBadgeStyle}">
                                                                 <Setter Property="Visibility" Value="Collapsed" />
-                                                                <Setter Property="Background" Value="#FEF3C7" />
-                                                                <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
-                                                                <Setter Property="BorderThickness" Value="1" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsBirthdaySoon}" Value="True">
                                                                         <Setter Property="Visibility" Value="Visible" />
+                                                                        <Setter Property="Background" Value="#FEF3C7" />
+                                                                        <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </Border.Style>
-                                                        <TextBlock Text="Próximo" Foreground="{StaticResource WarningBrush}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="Cumpleaños pronto"
+                                                                   Foreground="{StaticResource WarningBrush}"
+                                                                   FontWeight="SemiBold" />
                                                     </Border>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="Notas" Width="2*" MinWidth="220">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Notes, TargetNullValue='—'}"
+                                                </WrapPanel>
+
+                                                <TextBlock Grid.Row="4"
+                                                           Text="{Binding Notes, TargetNullValue='Sin notas registradas'}"
+                                                           Foreground="#4B5563"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,12,0,0"
                                                            TextTrimming="CharacterEllipsis"
                                                            ToolTip="{Binding Notes}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <TextBlock Text="No se encontraron pacientes con este criterio."
+                                       Foreground="#6B7280"
+                                       FontStyle="Italic"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Patients.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <Border Background="#FFFFFFCC"
+                                    Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Actualizando directorio..."
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource NeutralDarkBrush}" />
+                            </Border>
                         </Grid>
-                    </Border>
-
-                    <Border Grid.Column="1"
-                            Background="#FFFFFF"
-                            CornerRadius="24"
-                            Padding="26"
-                            BorderBrush="{StaticResource SeparatorBrush}"
-                            BorderThickness="1">
-                        <ContentControl Content="{Binding SelectedPatient}">
-                            <ContentControl.Style>
-                                <Style TargetType="ContentControl">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ContentControl">
-                                                <StackPanel>
-                                                    <TextBlock Text="Ficha del paciente"
-                                                               FontSize="17"
-                                                               FontWeight="SemiBold"
-                                                               Foreground="{StaticResource NeutralDarkBrush}" />
-                                                    <TextBlock Text="Consulta datos clave y prepara el siguiente contacto."
-                                                               Style="{StaticResource CaptionStyle}"
-                                                               Margin="0,6,0,20"
-                                                               TextWrapping="Wrap" />
-
-                                                    <Border Background="#F8FAFF"
-                                                            CornerRadius="18"
-                                                            Padding="18"
-                                                            BorderBrush="{StaticResource SeparatorBrush}"
-                                                            BorderThickness="1">
-                                                        <StackPanel>
-                                                            <TextBlock Text="{Binding Name}"
-                                                                       FontSize="20"
-                                                                       FontWeight="Bold"
-                                                                       Foreground="{StaticResource NeutralDarkBrush}" />
-                                                            <TextBlock Text="{Binding Age, StringFormat='Edad {0}', TargetNullValue='Edad N/D'}"
-                                                                       Style="{StaticResource CaptionStyle}"
-                                                                       Margin="0,6,0,0" />
-                                                        </StackPanel>
-                                                    </Border>
-
-                                                    <WrapPanel Margin="0,18,0,12">
-                                                        <Border Style="{StaticResource PatientsInfoBadgeStyle}">
-                                                            <TextBlock Text="{Binding Phone, TargetNullValue='Sin teléfono'}" />
-                                                        </Border>
-                                                        <Border Style="{StaticResource PatientsInfoBadgeStyle}">
-                                                            <TextBlock Text="{Binding BirthDate, StringFormat='Nacimiento {0:dd MMM yyyy}', TargetNullValue='Nacimiento N/D'}" />
-                                                        </Border>
-                                                    </WrapPanel>
-
-                                                    <Grid Margin="0,10,0,0">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto" />
-                                                            <RowDefinition Height="Auto" />
-                                                            <RowDefinition Height="Auto" />
-                                                            <RowDefinition Height="Auto" />
-                                                        </Grid.RowDefinitions>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="120" />
-                                                            <ColumnDefinition Width="*" />
-                                                        </Grid.ColumnDefinitions>
-
-                                                        <TextBlock Grid.Row="0"
-                                                                   Grid.Column="0"
-                                                                   Text="Teléfono"
-                                                                   Style="{StaticResource CaptionStyle}" />
-                                                        <TextBlock Grid.Row="0"
-                                                                   Grid.Column="1"
-                                                                   Text="{Binding Phone, TargetNullValue='Sin teléfono registrado'}"
-                                                                   TextWrapping="Wrap" />
-
-                                                        <TextBlock Grid.Row="1"
-                                                                   Grid.Column="0"
-                                                                   Text="Edad"
-                                                                   Style="{StaticResource CaptionStyle}"
-                                                                   Margin="0,12,0,0" />
-                                                        <TextBlock Grid.Row="1"
-                                                                   Grid.Column="1"
-                                                                   Text="{Binding Age, TargetNullValue='N/D'}"
-                                                                   FontWeight="SemiBold"
-                                                                   Margin="0,12,0,0" />
-
-                                                        <TextBlock Grid.Row="2"
-                                                                   Grid.Column="0"
-                                                                   Text="Nacimiento"
-                                                                   Style="{StaticResource CaptionStyle}"
-                                                                   Margin="0,12,0,0" />
-                                                        <TextBlock Grid.Row="2"
-                                                                   Grid.Column="1"
-                                                                   Text="{Binding BirthDate, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin registro'}"
-                                                                   Margin="0,12,0,0" />
-
-                                                        <TextBlock Grid.Row="3"
-                                                                   Grid.Column="0"
-                                                                   Text="Última consulta"
-                                                                   Style="{StaticResource CaptionStyle}"
-                                                                   Margin="0,12,0,0" />
-                                                        <TextBlock Grid.Row="3"
-                                                                   Grid.Column="1"
-                                                                   Text="{Binding LastConsultation, StringFormat='{}{0:dd MMM yyyy}', TargetNullValue='Sin consultas'}"
-                                                                   Margin="0,12,0,0" />
-                                                    </Grid>
-
-                            <Border Background="#FEF3C7"
-                                                            BorderBrush="{StaticResource WarningBrush}"
-                                                            Margin="0,20,0,0">
-                                                        <Border.Style>
-                                                            <Style TargetType="Border" BasedOn="{StaticResource PatientsInfoBadgeStyle}">
-                                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                                <Setter Property="Background" Value="#FEF3C7" />
-                                                                <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsBirthdaySoon}" Value="True">
-                                                                        <Setter Property="Visibility" Value="Visible" />
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Border.Style>
-                                                        <TextBlock Text="Cumpleaños cercano: envía un recordatorio" Foreground="{StaticResource WarningBrush}" FontWeight="SemiBold" />
-                                                    </Border>
-
-                                                    <StackPanel Margin="0,24,0,0">
-                                                        <TextBlock Text="Notas" Style="{StaticResource PatientsLabelStyle}" />
-                                                        <Border Background="{StaticResource SurfaceAltBrush}"
-                                                                BorderBrush="{StaticResource SeparatorBrush}"
-                                                                BorderThickness="1"
-                                                                CornerRadius="16"
-                                                                Padding="16"
-                                                                Margin="0,10,0,0">
-                                                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="180">
-                                                                <TextBlock Text="{Binding Notes, TargetNullValue='Sin notas registradas'}"
-                                                                           TextWrapping="Wrap"
-                                                                           Foreground="{StaticResource NeutralDarkBrush}" />
-                                                            </ScrollViewer>
-                                                        </Border>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="Content" Value="{x:Null}">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="ContentControl">
-                                                        <Border Background="{StaticResource SurfaceAltBrush}"
-                                                                CornerRadius="20"
-                                                                Padding="32"
-                                                                BorderBrush="{StaticResource SeparatorBrush}"
-                                                                BorderThickness="1">
-                                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                                <TextBlock Text="Selecciona un paciente para ver su ficha"
-                                                                           TextAlignment="Center"
-                                                                           Foreground="#718096"
-                                                                           FontSize="14" />
-                                                            </StackPanel>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ContentControl.Style>
-                        </ContentControl>
-                    </Border>
-                </Grid>
-
-                <Border Background="#FFFFFF"
-                        BorderBrush="{StaticResource SeparatorBrush}"
-                        BorderThickness="1"
-                        CornerRadius="18"
-                        Padding="18"
-                        Margin="0,28,0,0">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Visibility" Value="Visible" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding StatusMessage}" Value="">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding StatusMessage}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource NeutralDarkBrush}" />
+                    </Grid>
                 </Border>
             </StackPanel>
         </ScrollViewer>

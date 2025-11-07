@@ -73,6 +73,30 @@ public partial class PosViewModel : ViewModelBase
         _ = LoadSuggestionsAsync(value);
     }
 
+    partial void OnCashAmountChanged(decimal value)
+    {
+        UpdatePaymentPreview();
+    }
+
+    partial void OnCardAmountChanged(decimal value)
+    {
+        UpdatePaymentPreview();
+    }
+
+    partial void OnSelectedPaymentMethodChanged(PaymentMethod value)
+    {
+        if (value == PaymentMethod.Efectivo)
+        {
+            CardAmount = 0;
+        }
+        else if (value == PaymentMethod.Tarjeta)
+        {
+            CashAmount = 0;
+        }
+
+        UpdatePaymentPreview();
+    }
+
     [RelayCommand]
     private async Task AddProductAsync()
     {
@@ -221,15 +245,14 @@ public partial class PosViewModel : ViewModelBase
             foreach (var item in CartItems)
             {
                 var lineSubtotal = (item.UnitPrice - item.Discount) * item.Quantity;
-                var lineTax = lineSubtotal * item.TaxRate;
                 var saleLine = new SaleLine
                 {
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
                     Discount = item.Discount,
-                    TaxRate = item.TaxRate,
-                    LineTotal = lineSubtotal + lineTax,
+                    TaxRate = 0m,
+                    LineTotal = lineSubtotal,
                     Sale = sale
                 };
 
@@ -280,7 +303,7 @@ public partial class PosViewModel : ViewModelBase
                     ProductName = product.Name,
                     Quantity = quantityToAdd,
                     UnitPrice = product.Price,
-                    TaxRate = product.TaxRate,
+                    TaxRate = 0m,
                     Discount = 0
                 });
                 RecalculateTotals();
@@ -293,7 +316,7 @@ public partial class PosViewModel : ViewModelBase
                 ProductName = product.Name,
                 Quantity = quantityToAdd,
                 UnitPrice = product.Price,
-                TaxRate = product.TaxRate,
+                TaxRate = 0m,
                 Discount = 0
             });
             RecalculateTotals();
@@ -332,18 +355,17 @@ public partial class PosViewModel : ViewModelBase
     private void RecalculateTotals()
     {
         decimal subtotal = 0;
-        decimal tax = 0;
         foreach (var item in CartItems)
         {
             var lineSubtotal = (item.UnitPrice - item.Discount) * item.Quantity;
-            var lineTax = lineSubtotal * item.TaxRate;
             subtotal += lineSubtotal;
-            tax += lineTax;
         }
 
         Subtotal = Math.Round(subtotal, 2);
-        TaxTotal = Math.Round(tax, 2);
-        Total = Subtotal + TaxTotal;
+            TaxTotal = 0m;
+            Total = Subtotal;
+
+    UpdatePaymentPreview();
     }
 
     private void ClearSuggestions()
@@ -420,5 +442,31 @@ public partial class PosViewModel : ViewModelBase
         SearchQuery = string.Empty;
         ClearSuggestions();
         StatusMessage = message ?? $"Agregado: {product.Name}";
+    }
+
+    private void UpdatePaymentPreview()
+    {
+        if (Total <= 0)
+        {
+            ChangeAmount = 0;
+            return;
+        }
+
+        decimal change = 0m;
+
+        switch (SelectedPaymentMethod)
+        {
+            case PaymentMethod.Efectivo:
+                change = Math.Max(0, CashAmount - Total);
+                break;
+            case PaymentMethod.Tarjeta:
+                change = 0m;
+                break;
+            default:
+                change = Math.Max(0, CashAmount + CardAmount - Total);
+                break;
+        }
+
+        ChangeAmount = Math.Round(change, 2);
     }
 }

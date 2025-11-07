@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:enums="clr-namespace:Farmacia.Domain.Enums;assembly=Farmacia.Domain"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              Loaded="UserControl_OnLoaded">
@@ -66,11 +67,6 @@
             <GradientStop Color="#F2FBF6" Offset="0" />
             <GradientStop Color="#E7F7ED" Offset="1" />
         </LinearGradientBrush>
-        <LinearGradientBrush x:Key="PosMetricBrushPayment" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FFF8F1" Offset="0" />
-            <GradientStop Color="#FFEFE4" Offset="1" />
-        </LinearGradientBrush>
-
         <SolidColorBrush x:Key="PosAccentBrush" Color="#2563EB" />
         <SolidColorBrush x:Key="PosSuccessBrush" Color="#16A34A" />
         <SolidColorBrush x:Key="PosWarningBrush" Color="#EA580C" />
@@ -196,7 +192,7 @@
                         <StackPanel>
                             <TextBlock Text="Total actual" Style="{StaticResource PosMetricLabelStyle}" />
                             <TextBlock Text="{Binding Total, StringFormat=C}" Style="{StaticResource PosMetricValueStyle}" />
-                            <TextBlock Text="Incluye impuestos" Style="{StaticResource CaptionStyle}" />
+                            <TextBlock Text="Actualizado al instante" Style="{StaticResource CaptionStyle}" />
                         </StackPanel>
                         <Border Grid.Column="1" Width="48" Height="48" CornerRadius="24" Background="#FFFFFF" Opacity="0.85" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <Viewbox Width="26" Height="26">
@@ -225,24 +221,6 @@
                     </Grid>
                 </Border>
 
-                <Border Style="{StaticResource PosMetricCardStyle}" Background="{StaticResource PosMetricBrushPayment}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="Cambio estimado" Style="{StaticResource PosMetricLabelStyle}" />
-                            <TextBlock Text="{Binding ChangeAmount}" Style="{StaticResource PosMetricValueStyle}" />
-                            <TextBlock Text="Disponible para cliente" Style="{StaticResource CaptionStyle}" />
-                        </StackPanel>
-                        <Border Grid.Column="1" Width="48" Height="48" CornerRadius="24" Background="#FFFFFF" Opacity="0.85" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Viewbox Width="24" Height="24">
-                                <Path Data="M4,12 C4,7 8,2 13,2 C18,2 22,6 22,11 C22,16 18,20 13,20 C11,20 9,19 7,18 L4,20 L5,16 C4.4,15 4,13.6 4,12 Z" Stroke="{StaticResource PosWarningBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" />
-                            </Viewbox>
-                        </Border>
-                    </Grid>
-                </Border>
             </WrapPanel>
 
             <Grid Grid.Row="2" Margin="0,12,0,0">
@@ -333,11 +311,6 @@
                                 </StackPanel>
                             </Grid>
 
-                            <StackPanel Margin="0,20,0,0">
-                                <TextBlock Text="Cambio" Style="{StaticResource PosLabelStyle}" />
-                                <TextBox Text="{Binding ChangeAmount}" IsReadOnly="True" Style="{StaticResource PosTextBoxStyle}" />
-                            </StackPanel>
-
                             <Button Content="Cobrar" Command="{Binding CheckoutCommand}" Style="{StaticResource PrimaryButtonStyle}" Height="48" Margin="0,22,0,0" />
                         </StackPanel>
                     </Border>
@@ -359,24 +332,56 @@
                                 <TextBlock Text="Subtotal" Style="{StaticResource PosLabelStyle}" Margin="0" />
                                 <TextBlock Grid.Column="1" Text="{Binding Subtotal, StringFormat=C}" FontWeight="SemiBold" />
                             </Grid>
-                            <Grid Margin="0,6,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Impuestos" Style="{StaticResource PosLabelStyle}" Margin="0" />
-                                <TextBlock Grid.Column="1" Text="{Binding TaxTotal, StringFormat=C}" FontWeight="SemiBold" />
-                            </Grid>
                         </StackPanel>
                         <Separator Margin="0,20,0,16" />
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Total a pagar" FontSize="20" FontWeight="Bold" />
-                            <TextBlock Grid.Column="1" Text="{Binding Total, StringFormat=C}" FontSize="30" FontWeight="Bold" Foreground="{StaticResource PosAccentBrush}" />
-                        </Grid>
+                        <StackPanel>
+                            <TextBlock Text="Total a pagar"
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="{Binding Total, StringFormat=C}"
+                                       FontSize="32"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PosAccentBrush}"
+                                       Margin="0,4,0,0" />
+                            <Border Background="#ECFDF5"
+                                    CornerRadius="16"
+                                    Padding="14,10"
+                                    Margin="0,16,0,0"
+                                    BorderBrush="#A7F3D0"
+                                    BorderThickness="1">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedPaymentMethod}" Value="{x:Static enums:PaymentMethod.Efectivo}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedPaymentMethod}" Value="{x:Static enums:PaymentMethod.Mixto}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding CashAmount}" Value="0">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Total}" Value="0">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Cambio"
+                                               FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource PosSuccessBrush}" />
+                                    <TextBlock Text="{Binding ChangeAmount, StringFormat=' {0:C}'}"
+                                               FontSize="24"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PosSuccessBrush}"
+                                               Margin="12,0,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -416,7 +421,6 @@
                             <DataGridTextColumn Header="Producto" Binding="{Binding ProductName}" Width="2*" />
                             <DataGridTextColumn Header="Cantidad" Binding="{Binding Quantity}" Width="90" />
                             <DataGridTextColumn Header="Precio" Binding="{Binding UnitPrice, StringFormat=C}" Width="110" />
-                            <DataGridTextColumn Header="Impuesto" Binding="{Binding TaxRate, StringFormat=P0}" Width="100" />
                             <DataGridTextColumn Header="Descuento" Binding="{Binding Discount}" Width="100" />
                             <DataGridTextColumn Header="Total línea" Binding="{Binding LineTotal, StringFormat=C}" Width="120" />
                             <DataGridTemplateColumn Header="" Width="60">
