@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -55,8 +57,12 @@ public partial class PosViewModel : ViewModelBase
     [ObservableProperty]
     private PaymentMethod _selectedPaymentMethod = PaymentMethod.Efectivo;
 
+    [ObservableProperty]
+    private bool _hasServices;
+
     public ObservableCollection<CartItemModel> CartItems { get; } = new();
     public ObservableCollection<ProductSuggestionModel> ProductSuggestions { get; } = new();
+    public ObservableCollection<ServiceCatalogItemModel> ServiceCatalog { get; } = new();
 
     public IReadOnlyList<PaymentMethod> PaymentMethods { get; } = Enum.GetValues<PaymentMethod>();
 
@@ -66,6 +72,8 @@ public partial class PosViewModel : ViewModelBase
         _sequenceService = sequenceService;
         _inventoryService = inventoryService;
         _sessionService = sessionService;
+
+        _ = LoadServicesAsync();
     }
 
     partial void OnSearchQueryChanged(string value)
@@ -159,6 +167,11 @@ public partial class PosViewModel : ViewModelBase
         {
             IsBusy = false;
         }
+    }
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        AddServiceCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand]
@@ -280,9 +293,14 @@ public partial class PosViewModel : ViewModelBase
         }
     }
 
-    private async Task<(bool Added, string? Message)> AddOrUpdateCartItemAsync(Product product, decimal quantity)
+    private async Task<(bool Added, string? Message)> AddOrUpdateCartItemAsync(Product product, decimal quantity, decimal? customPrice = null)
     {
-        var existing = CartItems.FirstOrDefault(c => c.ProductId == product.Id);
+        var targetUnitPrice = customPrice ?? product.Price;
+        var isService = !string.IsNullOrWhiteSpace(product.InternalCode) && product.InternalCode.StartsWith("SERV-", StringComparison.OrdinalIgnoreCase);
+
+        CartItemModel? existing = isService
+            ? CartItems.FirstOrDefault(c => c.ProductId == product.Id && c.UnitPrice == targetUnitPrice)
+            : CartItems.FirstOrDefault(c => c.ProductId == product.Id);
         if (existing is null)
         {
             var available = product.UsesBatches
@@ -302,7 +320,7 @@ public partial class PosViewModel : ViewModelBase
                     ProductId = product.Id,
                     ProductName = product.Name,
                     Quantity = quantityToAdd,
-                    UnitPrice = product.Price,
+                    UnitPrice = targetUnitPrice,
                     TaxRate = 0m,
                     Discount = 0
                 });
@@ -315,7 +333,7 @@ public partial class PosViewModel : ViewModelBase
                 ProductId = product.Id,
                 ProductName = product.Name,
                 Quantity = quantityToAdd,
-                UnitPrice = product.Price,
+                UnitPrice = targetUnitPrice,
                 TaxRate = 0m,
                 Discount = 0
             });
@@ -348,6 +366,11 @@ public partial class PosViewModel : ViewModelBase
             }
         }
 
+        if (customPrice.HasValue)
+        {
+            existing.UnitPrice = customPrice.Value;
+        }
+
         RecalculateTotals();
         return (true, null);
     }
@@ -362,8 +385,8 @@ public partial class PosViewModel : ViewModelBase
         }
 
         Subtotal = Math.Round(subtotal, 2);
-            TaxTotal = 0m;
-            Total = Subtotal;
+    TaxTotal = 0m;
+    Total = Subtotal;
 
     UpdatePaymentPreview();
     }
@@ -468,5 +491,87 @@ public partial class PosViewModel : ViewModelBase
         }
 
         ChangeAmount = Math.Round(change, 2);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanExecuteServiceActions))]
+    private async Task AddServiceAsync(ServiceCatalogItemModel? service)
+    {
+        if (service is null)
+        {
+            return;
+        }
+
+        if (service.ChargeAmount <= 0m)
+        {
+            StatusMessage = "El precio del servicio debe ser mayor a cero.";
+            return;
+        }
+
+        try
+        {
+            IsBusy = true;
+            var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == service.ProductId);
+            if (product is null)
+            {
+                StatusMessage = "No se encontró la definición del servicio.";
+                return;
+            }
+
+            var (added, message) = await AddOrUpdateCartItemAsync(product, 1, service.ChargeAmount);
+            if (!added)
+            {
+                StatusMessage = message ?? "No fue posible agregar el servicio.";
+                return;
+            }
+
+            service.ResetToDefault();
+            StatusMessage = message ?? $"Servicio agregado: {product.Name}";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private bool CanExecuteServiceActions() => !IsBusy;
+
+    private async Task LoadServicesAsync()
+    {
+        try
+        {
+            var services = await _context.Products
+                .AsNoTracking()
+                .Where(p => p.InternalCode != null && EF.Functions.Like(p.InternalCode, "SERV-%"))
+                .OrderBy(p => p.Name)
+                .Select(p => new ServiceCatalogItemModel
+                {
+                    ProductId = p.Id,
+                    Name = p.Name,
+                    DefaultPrice = p.Price,
+                    ChargeAmount = p.Price
+                })
+                .ToListAsync();
+
+            ServiceCatalog.Clear();
+            foreach (var service in services)
+            {
+                if (service.DefaultPrice <= 0)
+                {
+                    service.ChargeAmount = 0;
+                }
+
+                ServiceCatalog.Add(service);
+            }
+
+            HasServices = ServiceCatalog.Any();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = ex.Message;
+        }
     }
 }

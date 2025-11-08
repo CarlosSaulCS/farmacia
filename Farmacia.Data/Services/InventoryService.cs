@@ -1,3 +1,4 @@
+using System;
 using Farmacia.Data.Contexts;
 using Farmacia.Domain.Entities;
 using Farmacia.Domain.Enums;
@@ -128,6 +129,12 @@ public class InventoryService : IInventoryService
     private async Task ApplySaleLineAsync(Sale sale, SaleLine line, CancellationToken cancellationToken)
     {
         var product = await _context.Products.Include(p => p.Lots).FirstAsync(p => p.Id == line.ProductId, cancellationToken);
+
+        var isService = !string.IsNullOrWhiteSpace(product.InternalCode) && product.InternalCode.StartsWith("SERV-", StringComparison.OrdinalIgnoreCase);
+        if (isService)
+        {
+            return;
+        }
 
         var lots = product.UsesBatches
             ? await _context.ProductLots

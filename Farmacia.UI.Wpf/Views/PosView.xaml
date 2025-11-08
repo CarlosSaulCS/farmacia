@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:enums="clr-namespace:Farmacia.Domain.Enums;assembly=Farmacia.Domain"
+             xmlns:models="clr-namespace:Farmacia.UI.Wpf.Models"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              Loaded="UserControl_OnLoaded">
@@ -284,6 +285,75 @@
                             <ProgressBar Style="{StaticResource InlineProgressBar}"
                                          Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
                                          Margin="0,18,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border CornerRadius="26"
+                            Background="#FFFFFF"
+                            Padding="26"
+                            Margin="0,0,0,20"
+                            Visibility="{Binding HasServices, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#1A1C33" BlurRadius="24" ShadowDepth="8" Opacity="0.08" />
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="Servicios rápidos"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource NeutralDarkBrush}" />
+                            <TextBlock Text="Agrega consultas, curaciones u otros servicios sin afectar inventario."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,6,0,18" />
+
+                            <ItemsControl ItemsSource="{Binding ServiceCatalog}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:ServiceCatalogItemModel}">
+                                        <Border BorderBrush="{StaticResource SeparatorBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="18"
+                                                Padding="16"
+                                                Margin="0,0,0,12"
+                                                Background="#F9FAFB">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="2*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource NeutralDarkBrush}" />
+                                                    <TextBlock Text="{Binding DefaultPrice, StringFormat='Tarifa sugerida {0:C}'}"
+                                                               Style="{StaticResource CaptionStyle}"
+                                                               Margin="0,4,0,0" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1"
+                                                            Margin="18,0,0,0">
+                                                    <TextBlock Text="Importe"
+                                                               Style="{StaticResource CaptionStyle}" />
+                                                    <TextBox Text="{Binding ChargeAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Width="90"
+                                                             Margin="0,4,0,0"
+                                                             Style="{StaticResource PosTextBoxStyle}" />
+                                                </StackPanel>
+                                                <Button Grid.Column="2"
+                                                        Content="Agregar"
+                                                        Command="{Binding DataContext.AddServiceCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource PrimaryButtonStyle}"
+                                                        Height="36"
+                                                        Margin="20,18,0,0"
+                                                        MinWidth="110" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="El material se captura aparte como productos del inventario."
+                                       Style="{StaticResource CaptionStyle}"
+                                       Margin="0,4,0,0"
+                                       Foreground="#475569" />
                         </StackPanel>
                     </Border>
 

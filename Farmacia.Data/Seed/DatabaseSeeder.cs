@@ -13,6 +13,14 @@ public class DatabaseSeeder
     private readonly PharmacyDbContext _context;
     private readonly ILogger<DatabaseSeeder> _logger;
 
+    private static readonly IReadOnlyList<ServiceSeed> ServiceSeeds = new List<ServiceSeed>
+    {
+        new("SERV-CONSULTA", "Consulta médica general", 150m),
+        new("SERV-CURACION", "Curación y limpieza de heridas", 90m),
+        new("SERV-SIGNOS", "Toma de signos vitales", 40m),
+        new("SERV-CERTIFICADO", "Certificado médico", 60m)
+    };
+
     public DatabaseSeeder(PharmacyDbContext context, ILogger<DatabaseSeeder> logger)
     {
         _context = context;
@@ -53,6 +61,7 @@ public class DatabaseSeeder
             await SeedConfigurationsAsync(cancellationToken);
         }
 
+        await EnsureServiceCatalogAsync(cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
 
@@ -149,6 +158,39 @@ public class DatabaseSeeder
                 TaxRate = 0.16m,
                 StockMinimum = 8,
                 UsesBatches = false
+            },
+            new()
+            {
+                Name = "Consulta médica general",
+                Presentation = "Servicio",
+                InternalCode = "SERV-CONSULTA",
+                Cost = 0m,
+                Price = 150m,
+                TaxRate = 0m,
+                StockMinimum = 0,
+                UsesBatches = false
+            },
+            new()
+            {
+                Name = "Curación y limpieza de heridas",
+                Presentation = "Servicio",
+                InternalCode = "SERV-CURACION",
+                Cost = 0m,
+                Price = 90m,
+                TaxRate = 0m,
+                StockMinimum = 0,
+                UsesBatches = false
+            },
+            new()
+            {
+                Name = "Toma de signos vitales",
+                Presentation = "Servicio",
+                InternalCode = "SERV-SIGNOS",
+                Cost = 0m,
+                Price = 40m,
+                TaxRate = 0m,
+                StockMinimum = 0,
+                UsesBatches = false
             }
         };
 
@@ -229,6 +271,68 @@ public class DatabaseSeeder
 
         await Task.CompletedTask;
     }
+
+    private async Task EnsureServiceCatalogAsync(CancellationToken cancellationToken)
+    {
+        foreach (var service in ServiceSeeds)
+        {
+            var existing = await _context.Products.FirstOrDefaultAsync(p => p.InternalCode == service.InternalCode, cancellationToken);
+            if (existing is null)
+            {
+                _context.Products.Add(new Product
+                {
+                    Name = service.Name,
+                    Presentation = "Servicio",
+                    InternalCode = service.InternalCode,
+                    Cost = 0m,
+                    Price = service.DefaultPrice,
+                    TaxRate = 0m,
+                    StockMinimum = 0m,
+                    UsesBatches = false
+                });
+                continue;
+            }
+
+            var updated = false;
+
+            if (existing.UsesBatches)
+            {
+                existing.UsesBatches = false;
+                updated = true;
+            }
+
+            if (existing.TaxRate != 0m)
+            {
+                existing.TaxRate = 0m;
+                updated = true;
+            }
+
+            if (existing.StockMinimum != 0m)
+            {
+                existing.StockMinimum = 0m;
+                updated = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(existing.Presentation) || !existing.Presentation.Equals("Servicio", StringComparison.OrdinalIgnoreCase))
+            {
+                existing.Presentation = "Servicio";
+                updated = true;
+            }
+
+            if (existing.Price <= 0m)
+            {
+                existing.Price = service.DefaultPrice;
+                updated = true;
+            }
+
+            if (updated)
+            {
+                _context.Products.Update(existing);
+            }
+        }
+    }
+
+    private sealed record ServiceSeed(string InternalCode, string Name, decimal DefaultPrice);
 
     private static string ComputeHash(string value, string salt)
     {
